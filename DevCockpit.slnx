@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/DevCockpit.App/DevCockpit.App.csproj" />
     <Project Path="src/DevCockpit.Core/DevCockpit.Core.csproj" />
     <Project Path="src/DevCockpit.Infrastructure/DevCockpit.Infrastructure.csproj" />
   </Folder>
