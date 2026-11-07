@@ -28,7 +28,9 @@ public sealed partial class ReportPanelViewModel(
     [ObservableProperty] public partial string? CopyStatus { get; set; }
 
     // AsyncRelayCommand no permite ejecuciones simultáneas: CanExecute es false mientras corre.
-    [RelayCommand]
+    // IncludeCancelCommand genera GenerateCancelCommand, que cancela el token (botón Cancelar).
+    // Los comandos atrapan todo: una excepción que escapa de un comando cierra la app entera.
+    [RelayCommand(IncludeCancelCommand = true)]
     private async Task GenerateAsync(CancellationToken ct)
     {
         IsGenerating = true;
@@ -39,6 +41,14 @@ public sealed partial class ReportPanelViewModel(
             Text = result.Text;
             Warning = result.Warning;
         }
+        catch (OperationCanceledException)
+        {
+            Warning = "Generación cancelada";
+        }
+        catch (Exception e)
+        {
+            Warning = "No se pudo generar: " + e.Message;
+        }
         finally
         {
             IsGenerating = false;
@@ -48,7 +58,14 @@ public sealed partial class ReportPanelViewModel(
     [RelayCommand]
     private async Task CopyAsync()
     {
-        await clipboard.SetTextAsync(Text);
-        CopyStatus = "Copiado";
+        try
+        {
+            await clipboard.SetTextAsync(Text);
+            CopyStatus = "Copiado";
+        }
+        catch (Exception e)
+        {
+            CopyStatus = "No se pudo copiar: " + e.Message;
+        }
     }
 }

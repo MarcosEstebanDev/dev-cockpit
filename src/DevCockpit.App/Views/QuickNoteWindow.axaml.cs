@@ -14,13 +14,19 @@ public partial class QuickNoteWindow : Window
         InitializeComponent();
         // Tunnel: la ventana ve el Enter antes que el TextBox, que si no lo convertiría en salto de línea.
         AddHandler(KeyDownEvent, OnPreviewKeyDown, RoutingStrategies.Tunnel);
-        Opened += (_, _) =>
-        {
-            // Sin esto Windows deja el teclado en la app que estabas usando (ver ForegroundWindow).
-            if (OperatingSystem.IsWindows() && TryGetPlatformHandle() is { } handle)
-                ForegroundWindow.Bring(handle.Handle);
-            NoteText.Focus();
-        };
+        Opened += (_, _) => BringToFront();
+    }
+
+    /// <summary>
+    /// Al abrirse y también si se aprieta el atajo con la nota ya abierta: Activate() solo no alcanza,
+    /// Windows deja el teclado en la app que estabas usando (ver ForegroundWindow).
+    /// </summary>
+    public void BringToFront()
+    {
+        Activate();
+        if (OperatingSystem.IsWindows() && TryGetPlatformHandle() is { } handle)
+            ForegroundWindow.Bring(handle.Handle);
+        NoteText.Focus();
     }
 
     private QuickNoteViewModel? Vm => DataContext as QuickNoteViewModel;

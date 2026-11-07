@@ -9,6 +9,7 @@ namespace DevCockpit.App.ViewModels;
 public sealed class MainWindowViewModel : ViewModelBase
 {
     private readonly ISettingsStore _settings;
+    private bool _initialized;
 
     public MainWindowViewModel(ReportService reports, IClipboardService clipboard, ISettingsStore settings,
         NotesViewModel notes, AchievementsViewModel achievements, SettingsViewModel settingsVm)
@@ -28,15 +29,28 @@ public sealed class MainWindowViewModel : ViewModelBase
     public AchievementsViewModel Achievements { get; }
     public SettingsViewModel Settings { get; }
 
-    /// <summary>Recarga listas y configuración cada vez que se muestra la ventana.</summary>
+    /// <summary>
+    /// Al mostrar la ventana. La configuración y los valores por defecto se cargan solo la primera vez:
+    /// recargarlos cada vez borraba lo que el usuario tenía editado y sin guardar.
+    /// </summary>
     public async Task RefreshAsync()
     {
-        var s = await _settings.LoadAsync(default);
-        Daily.Language = s.DefaultLanguage;
-        Weekly.Language = s.DefaultLanguage;
-        Daily.UseAi = Weekly.UseAi = s.Provider != LlmProviderKind.None;
+        if (!_initialized)
+        {
+            var s = await _settings.LoadAsync(default);
+            Daily.Language = s.DefaultLanguage;
+            Weekly.Language = s.DefaultLanguage;
+            Daily.UseAi = Weekly.UseAi = s.Provider != LlmProviderKind.None;
+            await Settings.LoadAsync();
+            _initialized = true;
+        }
+        await RefreshListsAsync();
+    }
+
+    /// <summary>Solo las listas (después de una nota rápida, por ejemplo).</summary>
+    public async Task RefreshListsAsync()
+    {
         await Notes.LoadAsync();
         await Achievements.LoadAsync();
-        await Settings.LoadAsync();
     }
 }

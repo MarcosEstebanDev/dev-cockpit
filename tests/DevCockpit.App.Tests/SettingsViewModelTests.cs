@@ -59,6 +59,52 @@ public class SettingsViewModelTests
     }
 
     [Fact]
+    public async Task Invalid_ollama_url_is_not_saved()
+    {
+        var settings = new FakeSettings(new AppSettings());
+        var vm = Vm(settings);
+        await vm.LoadAsync();
+
+        vm.OllamaUrl = "127.0.0.1:11434";
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal("http://localhost:11434", settings.Current.OllamaUrl);
+        Assert.Equal("No se guardó: la URL de Ollama tiene que ser como http://localhost:11434", vm.Status);
+    }
+
+    private sealed class BrokenSecrets : ISecretStore
+    {
+        public string? Get(string key) => null;
+        public void Set(string key, string value) => throw new System.ComponentModel.Win32Exception(5, "Acceso denegado");
+        public void Delete(string key) { }
+    }
+
+    [Fact]
+    public async Task Secret_store_failure_is_shown_not_thrown()
+    {
+        var vm = new SettingsViewModel(new FakeSettings(new AppSettings()), new BrokenSecrets(), new FakeIdentity(null),
+            _ => null, new FakePicker(null));
+        await vm.LoadAsync();
+
+        vm.AnthropicKey = "sk";
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal("No se pudo guardar: Acceso denegado", vm.Status);
+    }
+
+    [Fact]
+    public async Task Test_ai_unexpected_error_is_shown_not_thrown()
+    {
+        var vm = new SettingsViewModel(new FakeSettings(new AppSettings()), new MemorySecrets(), new FakeIdentity(null),
+            _ => throw new InvalidOperationException("raro"), new FakePicker(null));
+        await vm.LoadAsync();
+
+        await vm.TestAiCommand.ExecuteAsync(null);
+
+        Assert.Equal("Falló: raro", vm.Status);
+    }
+
+    [Fact]
     public async Task Empty_key_field_does_not_erase_stored_key()
     {
         var secrets = new MemorySecrets();

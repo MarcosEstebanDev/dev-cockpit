@@ -34,6 +34,11 @@ internal static class HttpJson
         {
             throw new LlmException($"No se pudo conectar con {providerName}: {e.Message}", e);
         }
+        catch (Exception e) when (e is InvalidOperationException or ArgumentException or NotSupportedException or FormatException)
+        {
+            // URL mal formada u otro problema del HttpClient: nunca debe escapar y cerrar la app.
+            throw new LlmException($"No se pudo llamar a {providerName}: {e.Message}", e);
+        }
         catch (JsonException e)
         {
             throw new LlmException($"{providerName} devolvió una respuesta que no es JSON", e);

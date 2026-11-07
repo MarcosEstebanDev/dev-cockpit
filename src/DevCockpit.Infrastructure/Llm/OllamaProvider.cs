@@ -15,7 +15,14 @@ public sealed class OllamaProvider(HttpClient http, string baseUrl, string model
     private const string KeepAlive = "1h";
 
     private readonly TimeSpan _timeout = timeout ?? DefaultTimeout;
-    private string Url => baseUrl.TrimEnd('/') + "/api/generate";
+
+    private string Url => IsValidBaseUrl(baseUrl)
+        ? baseUrl.Trim().TrimEnd('/') + "/api/generate"
+        : throw new LlmException($"La URL de Ollama no es válida: '{baseUrl}'. Tiene que ser como http://localhost:11434");
+
+    /// <summary>Solo http(s) absoluto: "127.0.0.1:11434" (formato de OLLAMA_HOST) no sirve como URL.</summary>
+    public static bool IsValidBaseUrl(string? url)
+        => Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 
     public string DisplayName => $"Ollama ({model})";
     public bool IsLocal => true;

@@ -34,13 +34,17 @@ public static class TemplateReportBuilder
         var sb = new StringBuilder();
         sb.Append($"**{t.Yesterday}** ({t.Days[(int)input.From.DayOfWeek]} {DayMonth(input.From)})\n");
 
-        var lines = input.Commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}")
-            .Concat(input.Notes.OrderBy(n => n.CreatedAt).Select(n => $"- {n.Text}"))
-            .ToList();
-        if (lines.Count == 0) lines.Add("- ");
-        foreach (var line in lines) sb.Append(line).Append('\n');
+        // Lo hecho hoy (antes de la daily) va en "Hoy"; el resto es del día hábil anterior.
+        bool IsToday(DateTimeOffset when) => DateOnly.FromDateTime(when.DateTime) == input.To;
+        AppendBullets(sb,
+            input.Commits.Where(c => !IsToday(c.When)).ToList(),
+            input.Notes.Where(n => !IsToday(n.CreatedAt)).ToList());
 
-        sb.Append($"**{t.Today}**\n- \n");
+        sb.Append($"**{t.Today}**\n");
+        AppendBullets(sb,
+            input.Commits.Where(c => IsToday(c.When)).ToList(),
+            input.Notes.Where(n => IsToday(n.CreatedAt)).ToList());
+
         sb.Append($"**{t.Blockers}**\n- {t.None}\n");
         AppendErrors(sb, input, t);
         return sb.ToString();
@@ -92,6 +96,15 @@ public static class TemplateReportBuilder
             sb.Append('\n');
         }
         return sb.ToString();
+    }
+
+    private static void AppendBullets(StringBuilder sb, List<Commit> commits, List<Note> notes)
+    {
+        var lines = commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}")
+            .Concat(notes.OrderBy(n => n.CreatedAt).Select(n => $"- {n.Text}"))
+            .ToList();
+        if (lines.Count == 0) lines.Add("- ");
+        foreach (var line in lines) sb.Append(line).Append('\n');
     }
 
     private static void AppendErrors(StringBuilder sb, ReportInput input, Texts t)

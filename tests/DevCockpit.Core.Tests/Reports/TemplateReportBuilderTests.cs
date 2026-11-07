@@ -49,6 +49,27 @@ public class TemplateReportBuilderTests
     }
 
     [Fact]
+    public void Daily_puts_todays_items_under_hoy()
+    {
+        // Revisión final M1: lo hecho hoy antes de la daily no es "Ayer".
+        var today = new Commit("api", "s", "m@x.com", new DateTimeOffset(2026, 11, 7, 9, 0, 0, Ar), "hecho hoy");
+        var input = new ReportInput(Friday, Saturday,
+            [C("api", "hecho ayer", 10), today],
+            [N("nota de hoy", 9, day: 7)], []);
+
+        var text = TemplateReportBuilder.Daily(input, ReportLanguage.Es);
+
+        Assert.Equal(
+            "**Ayer** (vie 06/11)\n" +
+            "- [api] hecho ayer\n" +
+            "**Hoy**\n" +
+            "- [api] hecho hoy\n" +
+            "- nota de hoy\n" +
+            "**Bloqueos**\n" +
+            "- Ninguno\n", text);
+    }
+
+    [Fact]
     public void Daily_en_uses_english_headings()
     {
         var input = new ReportInput(Friday, Saturday, [C("api", "feat: x", 10)], [], []);

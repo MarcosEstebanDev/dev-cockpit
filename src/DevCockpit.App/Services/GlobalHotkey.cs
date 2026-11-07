@@ -17,13 +17,15 @@ public sealed class GlobalHotkey : IDisposable
     private Hotkey _hotkey;
     private KeyCode _keyCode;
 
-    public GlobalHotkey(Hotkey hotkey, Action onPressed)
+    /// <param name="onFailed">Si el hook no se puede instalar o se cae (por ejemplo, por un antivirus).</param>
+    public GlobalHotkey(Hotkey hotkey, Action onPressed, Action<Exception> onFailed)
     {
         _onPressed = onPressed;
         _hotkey = hotkey;
         _keyCode = ToKeyCode(hotkey);
         _hook.KeyPressed += OnKeyPressed;
-        _ = _hook.RunAsync();
+        _ = ErrorLog.Observe(_hook.RunAsync(), "atajo global",
+            e => Dispatcher.UIThread.Post(() => onFailed(e)));
     }
 
     public void Change(Hotkey hotkey)

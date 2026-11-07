@@ -59,8 +59,8 @@ public sealed class ReportService(
             var pending = commits.Select(c => c.RepoName).Distinct()
                 .Except(s.CloudConfirmedRepos, StringComparer.OrdinalIgnoreCase)
                 .ToList();
-            var onlyNotes = commits.Count == 0;
-            if (pending.Count > 0 || onlyNotes)
+            // Las notas no pertenecen a ningún repo: aprobar repos no aprueba mandarlas.
+            if (pending.Count > 0 || windowNotes.Count > 0 || commits.Count == 0)
             {
                 var answer = await confirmation.ConfirmAsync(llm.DisplayName, prompt, pending);
                 if (!answer.Send) return new ReportResult(draft, false, "Envío cancelado");
@@ -79,6 +79,10 @@ public sealed class ReportService(
         catch (LlmException e)
         {
             return AiFailed(draft, e);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            return new ReportResult(draft, false, "Generación cancelada");
         }
     }
 

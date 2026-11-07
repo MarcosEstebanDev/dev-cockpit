@@ -69,6 +69,29 @@ public class QuickNoteViewModelTests
         Assert.False(closed);
     }
 
+    private sealed class BrokenNotes : INoteStore
+    {
+        public Task AddAsync(Note n, CancellationToken ct) => throw new IOException("database is locked");
+        public Task<IReadOnlyList<Note>> ListAsync(DateTimeOffset f, DateTimeOffset t, CancellationToken ct) => throw new NotImplementedException();
+        public Task<IReadOnlyList<Note>> ListAchievementsAsync(CancellationToken ct) => throw new NotImplementedException();
+        public Task DeleteAsync(Guid id, CancellationToken ct) => throw new NotImplementedException();
+    }
+
+    [Fact]
+    public async Task Save_failure_keeps_text_and_window_open()
+    {
+        // Revisión final I1: un error de SQLite cerraba la app y se perdía la nota escrita.
+        var vm = new QuickNoteViewModel(new BrokenNotes(), new FakeClock()) { Text = "no la pierdas" };
+        var closed = false;
+        vm.CloseRequested += () => closed = true;
+
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal("no la pierdas", vm.Text);
+        Assert.False(closed);
+        Assert.Equal("No se pudo guardar: database is locked", vm.Error);
+    }
+
     [Fact]
     public async Task Fields_are_cleared_after_save_for_the_next_note()
     {

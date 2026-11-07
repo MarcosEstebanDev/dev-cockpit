@@ -207,6 +207,50 @@ public class ReportServiceTests
     }
 
     [Fact]
+    public async Task Notes_require_confirmation_even_if_all_repos_were_approved()
+    {
+        // Revisión final I3: las notas no pertenecen a ningún repo; aprobar "api" no aprueba mandarlas.
+        await _settings.SaveAsync(_settings.Current with { CloudConfirmedRepos = ["api"] }, _ct);
+        CommitIn("api", "fix: algo");
+        _notes.Notes.Add(new Note(Guid.NewGuid(), Monday9.AddDays(-3).AddHours(8), "pass temporal en ticket 4411", false, null));
+        var confirm = new FakeConfirm(new(false, false));
+        var llm = new FakeLlm(isLocal: false);
+
+        await Service(llm, confirm).BuildAsync(ReportKind.Daily, ReportLanguage.Es, true, _ct);
+
+        Assert.Equal(1, confirm.Calls);
+        Assert.Null(llm.LastPrompt);
+    }
+
+    [Fact]
+    public async Task Approved_repos_without_notes_do_not_ask()
+    {
+        await _settings.SaveAsync(_settings.Current with { CloudConfirmedRepos = ["api"] }, _ct);
+        CommitIn("api", "fix: algo");
+        var confirm = new FakeConfirm(new(true, false));
+
+        await Service(new FakeLlm(isLocal: false), confirm).BuildAsync(ReportKind.Daily, ReportLanguage.Es, true, _ct);
+
+        Assert.Equal(0, confirm.Calls);
+    }
+
+    [Fact]
+    public async Task Cancelling_during_ai_returns_template_with_warning()
+    {
+        // Revisión final I6: con Ollama en frío la IA puede tardar minutos; cancelar tiene que devolver la plantilla.
+        CommitIn("api", "fix: algo");
+        using var cts = new CancellationTokenSource();
+        var llm = new FakeLlm(isLocal: true) { Throw = new OperationCanceledException(cts.Token) };
+        await cts.CancelAsync();
+
+        var result = await Service(llm).BuildAsync(ReportKind.Daily, ReportLanguage.Es, useAi: true, cts.Token);
+
+        Assert.False(result.UsedAi);
+        Assert.Equal("Generación cancelada", result.Warning);
+        Assert.Contains("- [api] fix: algo", result.Text);
+    }
+
+    [Fact]
     public async Task Llm_failure_falls_back_to_template_with_warning()
     {
         CommitIn("api", "fix: algo");

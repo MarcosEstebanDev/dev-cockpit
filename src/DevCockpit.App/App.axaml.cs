@@ -31,6 +31,13 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            // Red de seguridad: una excepción no atrapada en la UI se registra y la app sigue viva.
+            Dispatcher.UIThread.UnhandledException += (_, e) =>
+            {
+                ErrorLog.Write("UI", e.Exception);
+                e.Handled = true;
+            };
+
             Services = Composition.Build(() => _window);
             // La app vive en la bandeja: cerrar la ventana no la termina.
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
@@ -38,8 +45,8 @@ public partial class App : Application
 
             _window = new MainWindow { DataContext = Services.GetRequiredService<MainWindowViewModel>() };
             SetupTray(desktop);
-            _ = WarmUpLocalAiAsync();
-            _ = StartHotkeyAsync();
+            _ = ErrorLog.Observe(WarmUpLocalAiAsync(), "precarga de Ollama");
+            _ = ErrorLog.Observe(StartHotkeyAsync(), "atajo global", HotkeyFailed);
             Instance?.Listen(() => Dispatcher.UIThread.Post(ShowMainWindow));
 
             // Con --minimized (para el inicio de Windows) arranca solo en la bandeja.
@@ -52,13 +59,14 @@ public partial class App : Application
     public void ShowMainWindow()
     {
         if (_window is null) return;
-        _ = Services.GetRequiredService<MainWindowViewModel>().RefreshAsync();
+        _ = ErrorLog.Observe(Services.GetRequiredService<MainWindowViewModel>().RefreshAsync(), "refrescar ventana");
         _window.Show();
         if (_window.WindowState == WindowState.Minimized) _window.WindowState = WindowState.Normal;
         _window.Activate();
     }
 
     private GlobalHotkey? _hotkey;
+    private TrayIcon? _tray;
     private QuickNoteWindow? _quickNote;
 
     private static Hotkey ParseOrDefault(string text) => HotkeyParser.TryParse(text, out var hk) ? hk : HotkeyParser.Default;
@@ -66,17 +74,25 @@ public partial class App : Application
     private async Task StartHotkeyAsync()
     {
         var settings = await Services.GetRequiredService<ISettingsStore>().LoadAsync(default);
-        _hotkey = new GlobalHotkey(ParseOrDefault(settings.Hotkey), ShowQuickNote);
+        _hotkey = new GlobalHotkey(ParseOrDefault(settings.Hotkey), ShowQuickNote, HotkeyFailed);
         Services.GetRequiredService<SettingsViewModel>().Saved += s => _hotkey.Change(ParseOrDefault(s.Hotkey));
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             desktop.Exit += (_, _) => _hotkey.Dispose();
+    }
+
+    /// <summary>Sin atajo la captura rápida no existe: se avisa en el ícono y en Configuración.</summary>
+    private void HotkeyFailed(Exception e)
+    {
+        var message = "Atajo no disponible: " + e.Message;
+        if (_tray is not null) _tray.ToolTipText = "dev-cockpit · " + message;
+        Services.GetRequiredService<SettingsViewModel>().HotkeyWarning = message;
     }
 
     public void ShowQuickNote()
     {
         if (_quickNote is not null)
         {
-            _quickNote.Activate();
+            _quickNote.BringToFront();
             return;
         }
         var vm = Services.GetRequiredService<QuickNoteViewModel>();
@@ -84,7 +100,9 @@ public partial class App : Application
         void OnClose() => _quickNote?.Close();
         void OnSaved()
         {
-            if (_window?.IsVisible == true) _ = Services.GetRequiredService<MainWindowViewModel>().RefreshAsync();
+            // Solo las listas: recargar todo pisaba la configuración sin guardar.
+            if (_window?.IsVisible == true)
+                _ = ErrorLog.Observe(Services.GetRequiredService<MainWindowViewModel>().RefreshListsAsync(), "refrescar listas");
         }
         vm.CloseRequested += OnClose;
         vm.Saved += OnSaved;
@@ -131,7 +149,7 @@ public partial class App : Application
         menu.Items.Add(new NativeMenuItemSeparator());
         menu.Items.Add(exit);
 
-        var tray = new TrayIcon
+        var tray = _tray = new TrayIcon
         {
             Icon = new WindowIcon(AssetLoader.Open(new Uri("avares://DevCockpit.App/Assets/avalonia-logo.ico"))),
             ToolTipText = "dev-cockpit",

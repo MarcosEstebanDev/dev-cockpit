@@ -97,15 +97,30 @@ public sealed partial class SettingsViewModel(
     private async Task SaveAsync(CancellationToken ct)
     {
         var updated = Current();
-        await settings.SaveAsync(updated, ct);
-        _loaded = updated;
+        if (!OllamaProvider.IsValidBaseUrl(updated.OllamaUrl))
+        {
+            Status = "No se guardó: la URL de Ollama tiene que ser como http://localhost:11434";
+            return;
+        }
 
-        if (!string.IsNullOrWhiteSpace(AnthropicKey)) secrets.Set(LlmProviderFactory.SecretKey(LlmProviderKind.Anthropic), AnthropicKey.Trim());
-        if (!string.IsNullOrWhiteSpace(OpenAIKey)) secrets.Set(LlmProviderFactory.SecretKey(LlmProviderKind.OpenAI), OpenAIKey.Trim());
-        AnthropicKey = "";
-        OpenAIKey = "";
-        RefreshKeyFlags();
-        RefreshHotkeyWarning();
+        // Los comandos atrapan todo: una excepción que escapa de un comando cierra la app entera.
+        try
+        {
+            await settings.SaveAsync(updated, ct);
+            _loaded = updated;
+
+            if (!string.IsNullOrWhiteSpace(AnthropicKey)) secrets.Set(LlmProviderFactory.SecretKey(LlmProviderKind.Anthropic), AnthropicKey.Trim());
+            if (!string.IsNullOrWhiteSpace(OpenAIKey)) secrets.Set(LlmProviderFactory.SecretKey(LlmProviderKind.OpenAI), OpenAIKey.Trim());
+            AnthropicKey = "";
+            OpenAIKey = "";
+            RefreshKeyFlags();
+            RefreshHotkeyWarning();
+        }
+        catch (Exception e)
+        {
+            Status = "No se pudo guardar: " + e.Message;
+            return;
+        }
 
         Status = "Guardado";
         Saved?.Invoke(updated);
@@ -135,7 +150,7 @@ public sealed partial class SettingsViewModel(
             var answer = await llm.CompleteAsync("Respondé solamente: OK", ct);
             Status = $"{llm.DisplayName} respondió: {answer}";
         }
-        catch (LlmException e)
+        catch (Exception e)
         {
             Status = "Falló: " + e.Message;
         }

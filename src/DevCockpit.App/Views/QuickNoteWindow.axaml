@@ -14,6 +14,8 @@
                        Opacity="0.6" FontSize="12" />
             <TextBox x:Name="NoteText" Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap"
                      MinHeight="56" PlaceholderText="¿Qué hiciste?" />
+            <TextBlock Text="{Binding Error}" Foreground="#C0392B" TextWrapping="Wrap"
+                       IsVisible="{Binding Error, Converter={x:Static ObjectConverters.IsNotNull}}" />
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Es un logro" IsChecked="{Binding IsAchievement}" />
                 <TextBox Text="{Binding Metric}" PlaceholderText="Número (ej: de 4 s a 300 ms)" Width="280"

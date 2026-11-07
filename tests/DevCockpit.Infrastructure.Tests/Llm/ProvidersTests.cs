@@ -98,6 +98,29 @@ public class ProvidersTests
         Assert.Equal("http://localhost:11434/api/generate", _handler.LastRequest!.RequestUri!.ToString());
     }
 
+    [Theory]
+    [InlineData("127.0.0.1:11434")]   // formato de OLLAMA_HOST, sin esquema
+    [InlineData("")]
+    [InlineData("localhost")]
+    [InlineData("ftp://localhost:11434")]
+    public async Task Ollama_invalid_url_throws_LlmException_not_crash(string url)
+    {
+        // Revisión final I1: antes esto escapaba como InvalidOperationException y cerraba la app.
+        var ollama = new OllamaProvider(Http, url, "m");
+
+        var ex = await Assert.ThrowsAsync<LlmException>(() => ollama.CompleteAsync("hola", _ct));
+        Assert.Contains("URL de Ollama", ex.Message);
+    }
+
+    [Fact]
+    public async Task Unexpected_http_client_exception_becomes_LlmException()
+    {
+        _handler.Throw = new InvalidOperationException("algo raro del HttpClient");
+        var gpt = new OpenAIProvider(Http, "sk", "m");
+
+        await Assert.ThrowsAsync<LlmException>(() => gpt.CompleteAsync("hola", _ct));
+    }
+
     [Fact]
     public async Task Ollama_connection_refused_throws_LlmException()
     {

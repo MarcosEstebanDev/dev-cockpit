@@ -63,6 +63,55 @@ public class BitacoraViewModelTests
     }
 
     [Fact]
+    public async Task Unexpected_error_is_shown_not_thrown()
+    {
+        // Revisión final I1: una excepción en el comando cerraba toda la app.
+        var vm = new ReportPanelViewModel(ReportKind.Daily,
+            (_, _, _, _) => throw new InvalidOperationException("disco lleno"), new FakeClipboard(), ReportLanguage.Es)
+        { Text = "lo que había" };
+
+        await vm.GenerateCommand.ExecuteAsync(null);
+
+        Assert.Equal("No se pudo generar: disco lleno", vm.Warning);
+        Assert.Equal("lo que había", vm.Text);
+        Assert.False(vm.IsGenerating);
+    }
+
+    [Fact]
+    public async Task Cancel_stops_generation_and_says_so()
+    {
+        // Revisión final I6: con Ollama en frío puede tardar minutos; tiene que poder cancelarse.
+        var vm = new ReportPanelViewModel(ReportKind.Daily, async (_, _, _, ct) =>
+        {
+            await Task.Delay(Timeout.Infinite, ct);
+            return new ReportResult("nunca", false, null);
+        }, new FakeClipboard(), ReportLanguage.Es);
+
+        var running = vm.GenerateCommand.ExecuteAsync(null);
+        vm.GenerateCancelCommand.Execute(null);
+        await running;
+
+        Assert.Equal("Generación cancelada", vm.Warning);
+        Assert.False(vm.IsGenerating);
+    }
+
+    private sealed class BrokenClipboard : IClipboardService
+    {
+        public Task SetTextAsync(string text) => throw new InvalidOperationException("portapapeles ocupado");
+    }
+
+    [Fact]
+    public async Task Copy_failure_is_shown_not_thrown()
+    {
+        var vm = new ReportPanelViewModel(ReportKind.Daily, (_, _, _, _) => Task.FromResult(new ReportResult("x", false, null)),
+            new BrokenClipboard(), ReportLanguage.Es) { Text = "algo" };
+
+        await vm.CopyCommand.ExecuteAsync(null);
+
+        Assert.Equal("No se pudo copiar: portapapeles ocupado", vm.CopyStatus);
+    }
+
+    [Fact]
     public async Task Copy_puts_current_text_in_clipboard()
     {
         var clipboard = new FakeClipboard();

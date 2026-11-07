@@ -8,6 +8,7 @@
             <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="70" />
             <CheckBox Content="Usar IA" IsChecked="{Binding UseAi}" />
             <Button Content="Generar" Command="{Binding GenerateCommand}" Classes="accent" />
+            <Button Content="Cancelar" Command="{Binding GenerateCancelCommand}" IsVisible="{Binding IsGenerating}" />
             <Button Content="Copiar" Command="{Binding CopyCommand}" />
             <TextBlock Text="Generando…" IsVisible="{Binding IsGenerating}" VerticalAlignment="Center" />
             <TextBlock Text="{Binding CopyStatus}" VerticalAlignment="Center" Opacity="0.7" />

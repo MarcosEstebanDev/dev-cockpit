@@ -21,6 +21,7 @@ public sealed partial class QuickNoteViewModel(INoteStore notes, IClock clock) :
     [ObservableProperty] public partial string Text { get; set; } = "";
     [ObservableProperty] public partial bool IsAchievement { get; set; }
     [ObservableProperty] public partial string Metric { get; set; } = "";
+    [ObservableProperty] public partial string? Error { get; set; }
 
     [RelayCommand]
     private async Task SaveAsync()
@@ -29,8 +30,18 @@ public sealed partial class QuickNoteViewModel(INoteStore notes, IClock clock) :
         if (text.Length == 0) return;
 
         var metric = IsAchievement && !string.IsNullOrWhiteSpace(Metric) ? Metric.Trim() : null;
-        await notes.AddAsync(new Note(Guid.NewGuid(), clock.Now, text, IsAchievement, metric), CancellationToken.None);
+        try
+        {
+            await notes.AddAsync(new Note(Guid.NewGuid(), clock.Now, text, IsAchievement, metric), CancellationToken.None);
+        }
+        catch (Exception e)
+        {
+            // La ventana queda abierta con el texto: no se pierde lo escrito.
+            Error = "No se pudo guardar: " + e.Message;
+            return;
+        }
 
+        Error = null;
         Text = "";
         IsAchievement = false;
         Metric = "";

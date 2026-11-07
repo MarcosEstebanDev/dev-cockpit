@@ -60,7 +60,7 @@ En **Configuración**:
 ## Desarrollo
 
 ```powershell
-dotnet test                                   # 102 tests
+dotnet test                                   # 121 tests
 dotnet run --project src/DevCockpit.App       # correr en modo debug
 ```
 
