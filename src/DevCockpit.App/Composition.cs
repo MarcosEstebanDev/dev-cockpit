@@ -63,6 +63,7 @@ public static class Composition
         services.AddSingleton<AchievementsViewModel>();
         services.AddSingleton<SettingsViewModel>();
         services.AddSingleton<MainWindowViewModel>();
+        services.AddSingleton<QuickNoteViewModel>();
 
         return services.BuildServiceProvider();
     }

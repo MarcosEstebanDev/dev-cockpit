@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DevCockpit.App.Services;
 using DevCockpit.Core.Domain;
+using DevCockpit.Core.Input;
 using DevCockpit.Core.Ports;
 using DevCockpit.Infrastructure.Llm;
 
@@ -68,7 +69,13 @@ public sealed partial class SettingsViewModel(
         OpenAIModel = _loaded.OpenAIModel;
         Hotkey = _loaded.Hotkey;
         RefreshKeyFlags();
+        RefreshHotkeyWarning();
     }
+
+    private void RefreshHotkeyWarning()
+        => HotkeyWarning = HotkeyParser.TryParse(Hotkey, out _)
+            ? null
+            : $"Atajo inválido: se usa {HotkeyParser.Default}. Tiene que llevar Ctrl o Alt y una letra, número o F1-F12.";
 
     private AppSettings Current() => _loaded with
     {
@@ -98,6 +105,7 @@ public sealed partial class SettingsViewModel(
         AnthropicKey = "";
         OpenAIKey = "";
         RefreshKeyFlags();
+        RefreshHotkeyWarning();
 
         Status = "Guardado";
         Saved?.Invoke(updated);

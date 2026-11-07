@@ -106,6 +106,19 @@ public class SettingsViewModelTests
     }
 
     [Fact]
+    public async Task Invalid_hotkey_shows_warning_and_valid_one_clears_it()
+    {
+        var vm = Vm(new FakeSettings(new AppSettings { Hotkey = "N" }));
+
+        await vm.LoadAsync();
+        Assert.Equal("Atajo inválido: se usa Ctrl+Alt+N. Tiene que llevar Ctrl o Alt y una letra, número o F1-F12.", vm.HotkeyWarning);
+
+        vm.Hotkey = "Ctrl+Shift+K";
+        await vm.SaveCommand.ExecuteAsync(null);
+        Assert.Null(vm.HotkeyWarning);
+    }
+
+    [Fact]
     public async Task Cancelled_folder_picker_adds_nothing()
     {
         var vm = Vm(new FakeSettings(new AppSettings()), pickedFolder: null);
