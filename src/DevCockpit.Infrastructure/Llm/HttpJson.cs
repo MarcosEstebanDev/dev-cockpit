@@ -9,11 +9,15 @@ internal static class HttpJson
 {
     public static readonly TimeSpan Timeout = TimeSpan.FromSeconds(120);
 
-    public static async Task<JsonDocument> PostAsync(
+    public static Task<JsonDocument> PostAsync(
         HttpClient http, HttpRequestMessage request, string providerName, CancellationToken ct)
+        => PostAsync(http, request, providerName, Timeout, ct);
+
+    public static async Task<JsonDocument> PostAsync(
+        HttpClient http, HttpRequestMessage request, string providerName, TimeSpan limit, CancellationToken ct)
     {
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        timeout.CancelAfter(Timeout);
+        timeout.CancelAfter(limit);
         try
         {
             using var response = await http.SendAsync(request, timeout.Token);
@@ -24,7 +28,7 @@ internal static class HttpJson
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
-            throw new LlmException($"{providerName} tardó más de {Timeout.TotalSeconds:0} s en responder");
+            throw new LlmException($"{providerName} tardó más de {limit.TotalSeconds:0} s en responder");
         }
         catch (HttpRequestException e)
         {

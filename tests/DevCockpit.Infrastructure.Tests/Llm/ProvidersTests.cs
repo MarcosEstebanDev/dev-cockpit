@@ -34,7 +34,57 @@ public class ProvidersTests
         Assert.Equal("qwen2.5:7b-instruct", body.RootElement.GetProperty("model").GetString());
         Assert.Equal("hola", body.RootElement.GetProperty("prompt").GetString());
         Assert.False(body.RootElement.GetProperty("stream").GetBoolean());
+        Assert.Equal("1h", body.RootElement.GetProperty("keep_alive").GetString()); // que el modelo quede en RAM
         Assert.True(ollama.IsLocal);
+    }
+
+    [Fact]
+    public async Task Ollama_warm_up_loads_model_without_prompt()
+    {
+        _handler.ResponseBody = """{"model":"m","response":"","done":true}""";
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+
+        await ollama.WarmUpAsync(_ct);
+
+        using var body = JsonDocument.Parse(_handler.LastBody);
+        Assert.Equal("m", body.RootElement.GetProperty("model").GetString());
+        Assert.False(body.RootElement.TryGetProperty("prompt", out _));
+        Assert.Equal("1h", body.RootElement.GetProperty("keep_alive").GetString());
+    }
+
+    [Fact]
+    public async Task Ollama_warm_up_never_throws()
+    {
+        _handler.Throw = new HttpRequestException("Ollama apagado");
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+
+        await ollama.WarmUpAsync(_ct); // sin excepción: es un "por las dudas"
+    }
+
+    [Fact]
+    public void Ollama_default_timeout_covers_cold_model_load()
+    {
+        // Medido en esta PC (HDD): cargar qwen2.5 7B tarda ~200 s y generar la daily ~45 s.
+        Assert.True(OllamaProvider.DefaultTimeout >= TimeSpan.FromMinutes(5));
+    }
+
+    [Fact]
+    public async Task Slow_response_beyond_timeout_throws_LlmException()
+    {
+        var slow = new SlowHandler(TimeSpan.FromSeconds(5));
+        var ollama = new OllamaProvider(new HttpClient(slow), "http://localhost:11434", "m", TimeSpan.FromMilliseconds(200));
+
+        var ex = await Assert.ThrowsAsync<LlmException>(() => ollama.CompleteAsync("hola", _ct));
+        Assert.Contains("tardó", ex.Message);
+    }
+
+    private sealed class SlowHandler(TimeSpan delay) : HttpMessageHandler
+    {
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            await Task.Delay(delay, ct);
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
     }
 
     [Fact]

@@ -15,6 +15,7 @@ public static class PromptBuilder
             Rules:
             - Do not invent facts, tasks or numbers that are not in the draft.
             - Keep the bold headings exactly as they are.
+            - Do not translate repository names (the bold lines and the names in [brackets]); keep them exactly as written.
             - Merge commits that describe the same work into one line.
             - Reply only with the final text, in English.
 
@@ -26,6 +27,7 @@ public static class PromptBuilder
             Reglas:
             - No inventes hechos, tareas ni números que no estén en el borrador.
             - Mantené los encabezados en negrita tal cual están.
+            - No traduzcas los nombres de los repos (las líneas en negrita y lo que va entre [corchetes]); dejalos exactamente igual.
             - Uní en una sola línea los commits que describen el mismo trabajo.
             - Respondé solo con el texto final, en español.
 

@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DevCockpit.App.ViewModels"
+             x:Class="DevCockpit.App.Views.AchievementsView"
+             x:DataType="vm:AchievementsViewModel">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <Button Content="Exportar Markdown" Command="{Binding ExportCommand}" Classes="accent" />
+            <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Opacity="0.7" />
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Items}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:NoteRow">
+                    <DockPanel>
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding When}" Width="120" Opacity="0.7" />
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

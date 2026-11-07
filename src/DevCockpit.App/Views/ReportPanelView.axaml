@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DevCockpit.App.ViewModels"
+             x:Class="DevCockpit.App.Views.ReportPanelView"
+             x:DataType="vm:ReportPanelViewModel">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="70" />
+            <CheckBox Content="Usar IA" IsChecked="{Binding UseAi}" />
+            <Button Content="Generar" Command="{Binding GenerateCommand}" Classes="accent" />
+            <Button Content="Copiar" Command="{Binding CopyCommand}" />
+            <TextBlock Text="Generando…" IsVisible="{Binding IsGenerating}" VerticalAlignment="Center" />
+            <TextBlock Text="{Binding CopyStatus}" VerticalAlignment="Center" Opacity="0.7" />
+        </StackPanel>
+        <Border DockPanel.Dock="Top" Margin="0,0,0,8" Padding="8" CornerRadius="4"
+                Background="#33E0A100"
+                IsVisible="{Binding Warning, Converter={x:Static ObjectConverters.IsNotNull}}">
+            <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
+        </Border>
+        <TextBox Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap"
+                 FontFamily="Consolas,Menlo,monospace"
+                 Watermark="Tocá Generar para armar el resumen" />
+    </DockPanel>
+</UserControl>

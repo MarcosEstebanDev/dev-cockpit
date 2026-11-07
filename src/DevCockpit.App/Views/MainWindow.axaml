@@ -8,6 +8,14 @@
         Width="900" Height="620" MinWidth="640" MinHeight="420"
         WindowStartupLocation="CenterScreen">
 
-    <TextBlock Text="dev-cockpit" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="20" />
+    <!-- Cada pestaña muestra un ViewModel; el ViewLocator busca la vista con el mismo nombre
+         (ReportPanelViewModel -> ReportPanelView), como el routing por componente de Angular. -->
+    <TabControl Margin="8">
+        <TabItem Header="Daily" Content="{Binding Daily}" />
+        <TabItem Header="Semanal" Content="{Binding Weekly}" />
+        <TabItem Header="Notas" Content="{Binding Notes}" />
+        <TabItem Header="Logros" Content="{Binding Achievements}" />
+        <TabItem Header="Configuración" Content="{Binding Settings}" />
+    </TabControl>
 
 </Window>

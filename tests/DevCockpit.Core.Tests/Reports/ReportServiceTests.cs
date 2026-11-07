@@ -275,4 +275,12 @@ public class ReportServiceTests
         Assert.Contains("Do not invent", en);
         Assert.Contains("weekly summary", en);
     }
+
+    [Fact]
+    public void Prompt_forbids_translating_repo_names()
+    {
+        // Visto en la prueba real: Ollama tradujo el repo "fantasma" a "ghost".
+        Assert.Contains("Do not translate repository names", PromptBuilder.For(ReportKind.Weekly, ReportLanguage.En, "x"));
+        Assert.Contains("No traduzcas los nombres de los repos", PromptBuilder.For(ReportKind.Weekly, ReportLanguage.Es, "x"));
+    }
 }

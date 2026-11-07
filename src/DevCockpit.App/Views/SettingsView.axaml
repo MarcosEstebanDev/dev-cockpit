@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DevCockpit.App.ViewModels"
+             xmlns:dom="using:DevCockpit.Core.Domain"
+             x:Class="DevCockpit.App.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel"
+             x:Name="Root">
+    <ScrollViewer>
+        <StackPanel Margin="12" Spacing="14" MaxWidth="720" HorizontalAlignment="Left">
+
+            <TextBlock Text="Repos observados" FontWeight="SemiBold" />
+            <ItemsControl ItemsSource="{Binding Repos}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="dom:WatchedRepo">
+                        <DockPanel Margin="0,2">
+                            <Button DockPanel.Dock="Right" Content="Quitar"
+                                    Command="{Binding #Root.((vm:SettingsViewModel)DataContext).RemoveRepoCommand}"
+                                    CommandParameter="{Binding}" />
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" Width="160" VerticalAlignment="Center" />
+                            <TextBlock Text="{Binding Path}" Opacity="0.7" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" />
+                        </DockPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <Button Content="Agregar carpeta…" Command="{Binding AddRepoCommand}" />
+
+            <TextBlock Text="Tus emails de git (uno por línea)" FontWeight="SemiBold" />
+            <TextBox Text="{Binding AuthorEmailsText}" AcceptsReturn="True" MinHeight="60" />
+
+            <TextBlock Text="Ejecutable de git" FontWeight="SemiBold" />
+            <TextBox Text="{Binding GitExecutable}" Watermark="git" />
+
+            <TextBlock Text="Idioma por defecto de los resúmenes" FontWeight="SemiBold" />
+            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding DefaultLanguage}" />
+
+            <TextBlock Text="IA" FontWeight="SemiBold" />
+            <ComboBox ItemsSource="{Binding Providers}" SelectedItem="{Binding Provider}" />
+            <TextBlock Text="Ollama corre en tu PC. Con Claude o ChatGPT, antes de cada envío vas a ver el texto exacto."
+                       TextWrapping="Wrap" Opacity="0.7" />
+
+            <Grid ColumnDefinitions="180,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="8">
+                <TextBlock Grid.Row="0" Text="URL de Ollama" VerticalAlignment="Center" />
+                <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding OllamaUrl}" />
+                <TextBlock Grid.Row="1" Text="Modelo de Ollama" VerticalAlignment="Center" />
+                <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding OllamaModel}" />
+                <TextBlock Grid.Row="2" Text="Modelo de Claude" VerticalAlignment="Center" />
+                <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AnthropicModel}" />
+                <TextBlock Grid.Row="3" Text="API key de Claude" VerticalAlignment="Center" />
+                <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding AnthropicKey}" PasswordChar="•"
+                         Watermark="(sin cargar)" />
+                <TextBlock Grid.Row="4" Text="Modelo de ChatGPT" VerticalAlignment="Center" />
+                <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding OpenAIModel}" />
+                <TextBlock Grid.Row="5" Text="API key de ChatGPT" VerticalAlignment="Center" />
+                <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding OpenAIKey}" PasswordChar="•"
+                         Watermark="(sin cargar)" />
+            </Grid>
+            <StackPanel Orientation="Horizontal" Spacing="16" Opacity="0.7">
+                <TextBlock Text="Key de Claude guardada" IsVisible="{Binding HasAnthropicKey}" />
+                <TextBlock Text="Key de ChatGPT guardada" IsVisible="{Binding HasOpenAIKey}" />
+            </StackPanel>
+
+            <TextBlock Text="Atajo de nota rápida" FontWeight="SemiBold" />
+            <TextBox Text="{Binding Hotkey}" Watermark="Ctrl+Alt+N" />
+            <TextBlock Text="{Binding HotkeyWarning}" Foreground="#C77800" TextWrapping="Wrap"
+                       IsVisible="{Binding HotkeyWarning, Converter={x:Static ObjectConverters.IsNotNull}}" />
+
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Guardar" Command="{Binding SaveCommand}" Classes="accent" />
+                <Button Content="Probar IA" Command="{Binding TestAiCommand}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Status}" TextWrapping="Wrap" />
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
