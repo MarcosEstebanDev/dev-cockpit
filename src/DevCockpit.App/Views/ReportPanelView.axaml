@@ -19,6 +19,6 @@
         </Border>
         <TextBox Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap"
                  FontFamily="Consolas,Menlo,monospace"
-                 Watermark="Tocá Generar para armar el resumen" />
+                 PlaceholderText="Tocá Generar para armar el resumen" />
     </DockPanel>
 </UserControl>

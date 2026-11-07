@@ -28,7 +28,7 @@
             <TextBox Text="{Binding AuthorEmailsText}" AcceptsReturn="True" MinHeight="60" />
 
             <TextBlock Text="Ejecutable de git" FontWeight="SemiBold" />
-            <TextBox Text="{Binding GitExecutable}" Watermark="git" />
+            <TextBox Text="{Binding GitExecutable}" PlaceholderText="git" />
 
             <TextBlock Text="Idioma por defecto de los resúmenes" FontWeight="SemiBold" />
             <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding DefaultLanguage}" />
@@ -47,12 +47,12 @@
                 <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding AnthropicModel}" />
                 <TextBlock Grid.Row="3" Text="API key de Claude" VerticalAlignment="Center" />
                 <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding AnthropicKey}" PasswordChar="•"
-                         Watermark="(sin cargar)" />
+                         PlaceholderText="(sin cargar)" />
                 <TextBlock Grid.Row="4" Text="Modelo de ChatGPT" VerticalAlignment="Center" />
                 <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding OpenAIModel}" />
                 <TextBlock Grid.Row="5" Text="API key de ChatGPT" VerticalAlignment="Center" />
                 <TextBox Grid.Row="5" Grid.Column="1" Text="{Binding OpenAIKey}" PasswordChar="•"
-                         Watermark="(sin cargar)" />
+                         PlaceholderText="(sin cargar)" />
             </Grid>
             <StackPanel Orientation="Horizontal" Spacing="16" Opacity="0.7">
                 <TextBlock Text="Key de Claude guardada" IsVisible="{Binding HasAnthropicKey}" />
@@ -60,7 +60,7 @@
             </StackPanel>
 
             <TextBlock Text="Atajo de nota rápida" FontWeight="SemiBold" />
-            <TextBox Text="{Binding Hotkey}" Watermark="Ctrl+Alt+N" />
+            <TextBox Text="{Binding Hotkey}" PlaceholderText="Ctrl+Alt+N" />
             <TextBlock Text="{Binding HotkeyWarning}" Foreground="#C77800" TextWrapping="Wrap"
                        IsVisible="{Binding HotkeyWarning, Converter={x:Static ObjectConverters.IsNotNull}}" />
 

@@ -7,16 +7,16 @@
         Width="520" SizeToContent="Height"
         WindowStartupLocation="CenterScreen"
         Topmost="True" ShowInTaskbar="False" CanResize="False"
-        SystemDecorations="BorderOnly">
+        WindowDecorations="BorderOnly">
     <Border Padding="14" BorderThickness="1" BorderBrush="#40808080">
         <StackPanel Spacing="10">
             <TextBlock Text="Nota rápida · Enter guarda · Shift+Enter salto de línea · Esc cierra"
                        Opacity="0.6" FontSize="12" />
             <TextBox x:Name="NoteText" Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap"
-                     MinHeight="56" Watermark="¿Qué hiciste?" />
+                     MinHeight="56" PlaceholderText="¿Qué hiciste?" />
             <StackPanel Orientation="Horizontal" Spacing="12">
                 <CheckBox Content="Es un logro" IsChecked="{Binding IsAchievement}" />
-                <TextBox Text="{Binding Metric}" Watermark="Número (ej: de 4 s a 300 ms)" Width="280"
+                <TextBox Text="{Binding Metric}" PlaceholderText="Número (ej: de 4 s a 300 ms)" Width="280"
                          IsVisible="{Binding IsAchievement}" />
             </StackPanel>
         </StackPanel>
