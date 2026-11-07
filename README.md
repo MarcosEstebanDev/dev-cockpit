@@ -54,7 +54,8 @@ En **Configuración**:
   (`DevCockpit:anthropic`, `DevCockpit:openai`), nunca al JSON.
 - Con **Ollama** nada sale de la PC.
 - Con **Claude o ChatGPT**, antes de cada envío la app muestra **el texto exacto** que se va a
-  mandar y pide confirmación. "No volver a preguntar" se guarda por repo.
+  mandar y pide confirmación. "No volver a preguntar" se guarda por repo; si el resumen incluye
+  notas, pregunta siempre (las notas no pertenecen a ningún repo).
 - La IA recibe el borrador ya armado (commits y notas), no el código ni los diffs.
 
 ## Desarrollo
