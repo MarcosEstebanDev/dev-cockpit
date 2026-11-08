@@ -72,4 +72,12 @@ public class ReportFormatterTests
         Assert.Equal("dev-cockpit", line.Repo);
         Assert.Equal("Se implementó el layout", line.Text);
     }
+
+    [Fact]
+    public void Repo_tag_shows_once_per_run_of_the_same_repo()
+    {
+        var lines = ReportFormatter.Parse("- [api] uno\n- [api] dos\n- [web] tres\n- [api] cuatro");
+
+        Assert.Equal([false, true, false, false], lines.Select(l => l.IsRepoRepeat));
+    }
 }

@@ -7,7 +7,7 @@
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4) ![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44AC)
 ![Tests](https://img.shields.io/badge/tests-142%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-<!-- Screenshot: docs/screenshot.png (Daily tab with a generated summary) -->
+![dev-cockpit: Daily view, commits grouped by repository](docs/screenshot.png)
 
 I built this because I kept forgetting what I did yesterday by the time the daily stand-up started.
 It lives in the system tray, reads your git history across all your repos, and turns commits plus
@@ -27,6 +27,7 @@ reviews. I use it every day.
   - **Claude** or **ChatGPT**: before every request the app shows **the exact text** that will be sent
     and asks for confirmation.
   - Without AI you still get a clean template.
+- **Readable view**: headings, bullets and one tag per repository; **Edit text** shows the raw Markdown that **Copy** puts on the clipboard for Slack or Teams.
 - **Light / dark / system theme**, and an option to skip preloading the local model (it takes ~5 GB of RAM).
 
 ## Design decisions
@@ -50,7 +51,7 @@ Anthropic C# SDK · xUnit
 | `src/DevCockpit.Core` | Domain, ports and pure logic. No I/O. |
 | `src/DevCockpit.Infrastructure` | Adapters: git CLI, SQLite, JSON settings, Ollama / Claude / ChatGPT, Credential Manager. |
 | `src/DevCockpit.App` | Avalonia + MVVM: tray icon, windows, global hotkey. |
-| `tests/*` | 158 xUnit tests. Git tests create real temporary repositories. |
+| `tests/*` | 162 xUnit tests. Git tests create real temporary repositories. |
 
 ## Getting started
 
@@ -75,7 +76,7 @@ First run, in **Settings**: add the repositories to follow, check your git email
 ## Development
 
 ```powershell
-dotnet test                                   # 158 tests
+dotnet test                                   # 162 tests
 dotnet run --project src/DevCockpit.App       # debug run
 ```
 
@@ -88,6 +89,8 @@ Design spec and implementation plan: `docs/superpowers/`.
 - [ ] **Module 3 · Queries**: visual PostgreSQL `EXPLAIN ANALYZE`.
 
 ## Known limitations
+
+- On a CPU-only machine, small local models (3B-7B) are slow (~1-3 min) and tend to list commits instead of summarizing them, so AI rewriting is off by default. Claude Haiku does it in seconds for a fraction of a cent.
 
 - Tested on Windows 10 only. Avalonia runs on macOS and Linux, but API keys are stored with the
   Windows Credential Manager for now.

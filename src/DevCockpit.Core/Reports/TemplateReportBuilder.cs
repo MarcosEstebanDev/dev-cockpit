@@ -113,7 +113,11 @@ public static class TemplateReportBuilder
             ? commits.GroupBy(c => c.RepoName)
                 .OrderBy(g => g.Min(c => c.When))
                 .Select(g => $"- [{g.Key}] {string.Join("; ", g.OrderBy(c => c.When).Select(c => c.Subject))}")
-            : commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}");
+            // Sin IA: un commit por línea, pero cada repo junto (en el orden de su primer commit).
+            : commits.GroupBy(c => c.RepoName)
+                .OrderBy(g => g.Min(c => c.When))
+                .SelectMany(g => g.OrderBy(c => c.When))
+                .Select(c => $"- [{c.RepoName}] {c.Subject}");
         var lines = commitLines
             .Concat(notes.OrderBy(n => n.CreatedAt).Select(n => $"- {Indent(n.Text)}"))
             .ToList();

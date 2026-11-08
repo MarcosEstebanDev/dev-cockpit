@@ -7,13 +7,17 @@ public enum ReportLineKind { Heading, Bullet, Quote, Text }
 /// <summary>Una línea del resumen ya interpretada, para mostrarla con formato en vez de como texto crudo.</summary>
 /// <param name="Meta">En un encabezado, lo que va entre paréntesis (la fecha).</param>
 /// <param name="Repo">En una viñeta, el repo al que pertenece, si se puede saber.</param>
-public sealed record ReportLine(ReportLineKind Kind, string Text, string? Meta = null, string? Repo = null)
+/// <param name="IsRepoRepeat">Mismo repo que la línea anterior: la etiqueta no se repite en pantalla.</param>
+public sealed record ReportLine(ReportLineKind Kind, string Text, string? Meta = null, string? Repo = null,
+    bool IsRepoRepeat = false)
 {
     public bool IsHeading => Kind == ReportLineKind.Heading;
     public bool IsBullet => Kind == ReportLineKind.Bullet;
     public bool IsQuote => Kind == ReportLineKind.Quote;
     public bool IsText => Kind == ReportLineKind.Text;
     public bool HasRepo => Repo is not null;
+    /// <summary>Primera línea de un grupo del mismo repo: la etiqueta va arriba, como encabezado del grupo.</summary>
+    public bool StartsRepoGroup => Repo is not null && !IsRepoRepeat;
     public bool HasMeta => Meta is not null;
 }
 
@@ -62,7 +66,9 @@ public static partial class ReportFormatter
             {
                 var body = line.Length > 2 ? line[2..].Trim() : "";
                 if (body.Length == 0) continue; // viñeta vacía de la plantilla: no aporta nada en pantalla
-                lines.Add(Bullet(body));
+                var bullet = Bullet(body);
+                var previous = lines.Count > 0 ? lines[^1] : null;
+                lines.Add(bullet with { IsRepoRepeat = bullet.Repo is not null && previous?.Repo == bullet.Repo });
             }
             else if (line.StartsWith('>'))
             {

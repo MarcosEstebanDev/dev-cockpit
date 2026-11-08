@@ -15,5 +15,7 @@ public sealed record AppSettings
     public AppTheme Theme { get; init; } = AppTheme.System;
     /// <summary>Cargar el modelo de Ollama al abrir: la primera daily no espera, pero ocupa ~5 GB de RAM.</summary>
     public bool PreloadAi { get; init; } = true;
+    /// <summary>"Redactar con IA" tildado al abrir. Apagado: la IA local en CPU tarda minutos.</summary>
+    public bool UseAiByDefault { get; init; }
     public List<string> CloudConfirmedRepos { get; init; } = [];
 }

@@ -191,14 +191,13 @@
             <Setter Property="Fill" Value="{DynamicResource CockpitMuted}" />
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="Margin" Value="4,9,0,0" />
+            <Setter Property="Margin" Value="8,9,0,0" />
         </Style>
         <!-- Etiqueta del repo: se lee de un vistazo a qué proyecto pertenece cada línea. -->
         <Style Selector="Border.r-repo">
             <Setter Property="Background" Value="{DynamicResource CockpitSelected}" />
             <Setter Property="CornerRadius" Value="5" />
             <Setter Property="Padding" Value="7,1,7,2" />
-            <Setter Property="Margin" Value="0,1,10,0" />
             <Setter Property="VerticalAlignment" Value="Top" />
         </Style>
         <Style Selector="Border.r-repo > TextBlock">

@@ -50,13 +50,17 @@
                                             <TextBlock Classes="r-meta" Text="{Binding Meta}" IsVisible="{Binding HasMeta}" />
                                         </StackPanel>
 
-                                        <Grid IsVisible="{Binding IsBullet}" ColumnDefinitions="20,Auto,*" Margin="0,4">
-                                            <Ellipse Classes="r-dot" />
-                                            <Border Grid.Column="1" Classes="r-repo" IsVisible="{Binding HasRepo}">
+                                        <StackPanel IsVisible="{Binding IsBullet}">
+                                            <!-- Etiqueta del repo como encabezado de su grupo de viñetas. -->
+                                            <Border Classes="r-repo" IsVisible="{Binding StartsRepoGroup}"
+                                                    HorizontalAlignment="Left" Margin="0,8,0,4">
                                                 <TextBlock Text="{Binding Repo}" />
                                             </Border>
-                                            <TextBlock Grid.Column="2" Classes="r-body" Text="{Binding Text}" />
-                                        </Grid>
+                                            <Grid ColumnDefinitions="22,*" Margin="0,3">
+                                                <Ellipse Classes="r-dot" />
+                                                <TextBlock Grid.Column="1" Classes="r-body" Text="{Binding Text}" />
+                                            </Grid>
+                                        </StackPanel>
 
                                         <Border IsVisible="{Binding IsQuote}" Classes="warning" Margin="0,10,0,4">
                                             <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
