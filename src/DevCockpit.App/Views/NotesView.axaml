@@ -1,0 +1,25 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:DevCockpit.App.ViewModels"
+             x:Class="DevCockpit.App.Views.NotesView"
+             x:DataType="vm:NotesViewModel"
+             x:Name="Root">
+    <DockPanel Margin="12">
+        <TextBlock DockPanel.Dock="Top" Text="Notas de los últimos 14 días (Ctrl+Alt+N para anotar desde cualquier lado)"
+                   Classes="muted" Margin="0,0,0,8" TextWrapping="Wrap" />
+        <ListBox ItemsSource="{Binding Items}">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:NoteRow">
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Borrar"
+                                Command="{Binding #Root.((vm:NotesViewModel)DataContext).DeleteCommand}"
+                                CommandParameter="{Binding}" />
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding When}" Width="120" Classes="muted" VerticalAlignment="Center" />
+                        <TextBlock DockPanel.Dock="Left" Text="★" IsVisible="{Binding IsAchievement}" Margin="0,0,6,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" VerticalAlignment="Center" />
+                    </DockPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</UserControl>

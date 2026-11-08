@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="DevCockpit.App.Views.ConfirmSendDialog"
+        Title="Confirmar envío"
+        Width="640" Height="520" MinWidth="420" MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="16">
+        <TextBlock x:Name="Heading" DockPanel.Dock="Top" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,0,0,8" />
+        <StackPanel DockPanel.Dock="Bottom" Spacing="10" Margin="0,12,0,0">
+            <CheckBox x:Name="DontAskAgain" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                <Button Content="Cancelar" Click="OnCancel" IsCancel="True" />
+                <Button Content="Enviar" Click="OnSend" Classes="accent" />
+            </StackPanel>
+        </StackPanel>
+        <TextBox x:Name="Payload" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap"
+                 FontFamily="Consolas,Menlo,monospace" />
+    </DockPanel>
+</Window>
