@@ -5,17 +5,49 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
         Title="{Binding Title}"
-        Width="900" Height="620" MinWidth="640" MinHeight="420"
+        Width="1000" Height="660" MinWidth="720" MinHeight="460"
+        Background="{DynamicResource CockpitWindow}"
         WindowStartupLocation="CenterScreen">
 
-    <!-- Cada pestaña muestra un ViewModel; el ViewLocator busca la vista con el mismo nombre
-         (ReportPanelViewModel -> ReportPanelView), como el routing por componente de Angular. -->
-    <TabControl Margin="8">
-        <TabItem Header="Daily" Content="{Binding Daily}" />
-        <TabItem Header="Semanal" Content="{Binding Weekly}" />
-        <TabItem Header="Notas" Content="{Binding Notes}" />
-        <TabItem Header="Logros" Content="{Binding Achievements}" />
-        <TabItem Header="Configuración" Content="{Binding Settings}" />
-    </TabControl>
+    <Grid ColumnDefinitions="210,*">
+
+        <!-- Barra lateral: las páginas de la bitácora son los nodos de un grafo de commits. -->
+        <Border Grid.Column="0" Background="{DynamicResource CockpitRail}"
+                BorderBrush="{DynamicResource CockpitLine}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="14,22,14,16">
+                <StackPanel DockPanel.Dock="Bottom" Spacing="8">
+                    <Button Classes="rail-link" Classes.active="{Binding IsSettingsOpen}"
+                            Command="{Binding OpenSettingsCommand}" Content="⚙  Configuración" />
+                    <TextBlock Classes="muted" FontSize="12" Margin="8,0" TextWrapping="Wrap"
+                               Text="Ctrl+Alt+N anota desde cualquier app." />
+                </StackPanel>
+
+                <TextBlock DockPanel.Dock="Top" Classes="rail-title" Text="Bitácora" Margin="8,0,0,10" />
+
+                <ListBox Classes="rail" ItemsSource="{Binding LogPages}" SelectedItem="{Binding SelectedLogPage}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate x:DataType="vm:NavPage">
+                            <Grid ColumnDefinitions="28,*" Height="46">
+                                <Rectangle Classes="rail-line" Width="2" HorizontalAlignment="Center" />
+                                <Ellipse Classes="node" Width="12" Height="12"
+                                         HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                <TextBlock Grid.Column="1" Classes="rail-item" Text="{Binding Title}"
+                                           VerticalAlignment="Center" Margin="8,0,0,0" />
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
+
+        <!-- Página actual: título, para qué sirve y su contenido (el ViewLocator elige la vista). -->
+        <DockPanel Grid.Column="1" Margin="36,26,36,24">
+            <StackPanel DockPanel.Dock="Top" Spacing="4" Margin="0,0,0,18">
+                <TextBlock Classes="page-title" Text="{Binding CurrentPage.Title}" />
+                <TextBlock Classes="page-sub" Text="{Binding CurrentPage.Description}" />
+            </StackPanel>
+            <ContentControl Content="{Binding CurrentPage.Content}" />
+        </DockPanel>
+    </Grid>
 
 </Window>
