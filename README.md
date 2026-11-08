@@ -5,7 +5,7 @@
 [Leer en español](README.es.md)
 
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4) ![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44AC)
-![Tests](https://img.shields.io/badge/tests-142%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Tests](https://img.shields.io/badge/tests-162%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 ![dev-cockpit: Daily view, commits grouped by repository](docs/screenshot.png)
 
