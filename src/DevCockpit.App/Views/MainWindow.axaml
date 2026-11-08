@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:DevCockpit.App.ViewModels"
+        xmlns:views="using:DevCockpit.App.Views"
         x:Class="DevCockpit.App.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
@@ -11,28 +12,43 @@
 
     <Grid ColumnDefinitions="210,*">
 
-        <!-- Barra lateral: las páginas de la bitácora son los nodos de un grafo de commits. -->
+        <!-- Menú lateral: marca arriba, páginas de la bitácora y Configuración abajo. -->
         <Border Grid.Column="0" Background="{DynamicResource CockpitRail}"
                 BorderBrush="{DynamicResource CockpitLine}" BorderThickness="0,0,1,0">
-            <DockPanel Margin="14,22,14,16">
-                <StackPanel DockPanel.Dock="Bottom" Spacing="8">
-                    <Button Classes="rail-link" Classes.active="{Binding IsSettingsOpen}"
-                            Command="{Binding OpenSettingsCommand}" Content="⚙  Configuración" />
-                    <TextBlock Classes="muted" FontSize="12" Margin="8,0" TextWrapping="Wrap"
+            <DockPanel Margin="12,18,12,14">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="8,0,0,26">
+                    <Border Width="26" Height="26" CornerRadius="7" Background="{DynamicResource CockpitAccent}">
+                        <TextBlock Text="›_" Foreground="White" FontWeight="Bold" FontSize="13"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,2" />
+                    </Border>
+                    <TextBlock Text="dev-cockpit" FontSize="15" FontWeight="SemiBold"
+                               Foreground="{DynamicResource CockpitInk}" VerticalAlignment="Center" />
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom" Spacing="10">
+                    <Button Classes="nav-button" Classes.active="{Binding IsSettingsOpen}"
+                            Command="{Binding OpenSettingsCommand}">
+                        <Grid ColumnDefinitions="3,30,*" Height="38">
+                            <Border Classes="marker" />
+                            <Path Grid.Column="1" Classes="nav-icon"
+                                  Data="{Binding SettingsPage.Icon, Converter={x:Static views:Icons.ToGeometry}}" />
+                            <TextBlock Grid.Column="2" Classes="nav-text" Text="{Binding SettingsPage.Title}" />
+                        </Grid>
+                    </Button>
+                    <TextBlock Classes="muted" FontSize="12" Margin="12,0" TextWrapping="Wrap"
                                Text="Ctrl+Alt+N anota desde cualquier app." />
                 </StackPanel>
 
-                <TextBlock DockPanel.Dock="Top" Classes="rail-title" Text="Bitácora" Margin="8,0,0,10" />
+                <TextBlock DockPanel.Dock="Top" Classes="nav-section" Text="Bitácora" Margin="12,0,0,6" />
 
-                <ListBox Classes="rail" ItemsSource="{Binding LogPages}" SelectedItem="{Binding SelectedLogPage}">
+                <ListBox Classes="nav" ItemsSource="{Binding LogPages}" SelectedItem="{Binding SelectedLogPage}">
                     <ListBox.ItemTemplate>
                         <DataTemplate x:DataType="vm:NavPage">
-                            <Grid ColumnDefinitions="28,*" Height="46">
-                                <Rectangle Classes="rail-line" Width="2" HorizontalAlignment="Center" />
-                                <Ellipse Classes="node" Width="12" Height="12"
-                                         HorizontalAlignment="Center" VerticalAlignment="Center" />
-                                <TextBlock Grid.Column="1" Classes="rail-item" Text="{Binding Title}"
-                                           VerticalAlignment="Center" Margin="8,0,0,0" />
+                            <Grid ColumnDefinitions="3,30,*" Height="38">
+                                <Border Classes="marker" />
+                                <Path Grid.Column="1" Classes="nav-icon"
+                                      Data="{Binding Icon, Converter={x:Static views:Icons.ToGeometry}}" />
+                                <TextBlock Grid.Column="2" Classes="nav-text" Text="{Binding Title}" />
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>

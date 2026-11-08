@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:DevCockpit.App.ViewModels"
+             xmlns:rep="using:DevCockpit.Core.Reports"
              x:Class="DevCockpit.App.Views.ReportPanelView"
              x:DataType="vm:ReportPanelViewModel">
     <DockPanel>
@@ -16,7 +17,12 @@
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <Button Content="Generar" Command="{Binding GenerateCommand}" Classes="accent" MinWidth="96" />
                 <Button Content="Cancelar" Command="{Binding GenerateCancelCommand}" IsVisible="{Binding IsGenerating}" />
-                <Button Content="Copiar" Command="{Binding CopyCommand}" />
+                <Button Content="Copiar" Command="{Binding CopyCommand}" IsEnabled="{Binding HasText}"
+                        ToolTip.Tip="Copia el texto con formato de Slack/Teams (negritas y viñetas)" />
+                <Button Content="Editar texto" Command="{Binding ToggleEditCommand}"
+                        IsVisible="{Binding !IsEditing}" IsEnabled="{Binding HasText}" />
+                <Button Content="Ver con formato" Command="{Binding ToggleEditCommand}"
+                        IsVisible="{Binding IsEditing}" />
                 <TextBlock Text="{Binding CopyStatus}" VerticalAlignment="Center" Classes="muted" Margin="4,0,0,0" />
             </StackPanel>
         </DockPanel>
@@ -26,7 +32,49 @@
             <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
         </Border>
 
-        <TextBox Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap" Classes="report"
-                 PlaceholderText="Tocá Generar. Con IA en tu PC el texto aparece de a poco; sin IA sale al instante." />
+        <Panel>
+            <!-- Vista de lectura: el resumen como documento, no como log. -->
+            <Border Classes="sheet" IsVisible="{Binding !IsEditing}">
+                <Panel>
+                    <TextBlock Classes="sheet-empty" IsVisible="{Binding !HasText}" TextWrapping="Wrap"
+                               Text="Tocá Generar. Sin IA sale al instante; con IA en tu PC el texto aparece de a poco." />
+                    <ScrollViewer IsVisible="{Binding HasText}">
+                        <ItemsControl ItemsSource="{Binding Lines}" Margin="26,10,26,22" MaxWidth="820"
+                                      HorizontalAlignment="Left">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="rep:ReportLine">
+                                    <Panel>
+                                        <StackPanel IsVisible="{Binding IsHeading}" Orientation="Horizontal"
+                                                    Spacing="10" Margin="0,16,0,6">
+                                            <TextBlock Classes="r-heading" Text="{Binding Text}" />
+                                            <TextBlock Classes="r-meta" Text="{Binding Meta}" IsVisible="{Binding HasMeta}" />
+                                        </StackPanel>
+
+                                        <Grid IsVisible="{Binding IsBullet}" ColumnDefinitions="20,Auto,*" Margin="0,4">
+                                            <Ellipse Classes="r-dot" />
+                                            <Border Grid.Column="1" Classes="r-repo" IsVisible="{Binding HasRepo}">
+                                                <TextBlock Text="{Binding Repo}" />
+                                            </Border>
+                                            <TextBlock Grid.Column="2" Classes="r-body" Text="{Binding Text}" />
+                                        </Grid>
+
+                                        <Border IsVisible="{Binding IsQuote}" Classes="warning" Margin="0,10,0,4">
+                                            <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                                        </Border>
+
+                                        <TextBlock IsVisible="{Binding IsText}" Classes="r-body" Text="{Binding Text}"
+                                                   Margin="0,4" />
+                                    </Panel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Panel>
+            </Border>
+
+            <!-- Edición: el texto crudo, exactamente lo que se copia. -->
+            <TextBox Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap" Classes="report"
+                     IsVisible="{Binding IsEditing}" />
+        </Panel>
     </DockPanel>
 </UserControl>

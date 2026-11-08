@@ -9,8 +9,9 @@ using DevCockpit.Core.Reports;
 
 namespace DevCockpit.App.ViewModels;
 
-/// <summary>Una página de la ventana: título, para qué sirve y el ViewModel que se muestra.</summary>
-public sealed record NavPage(string Title, string Description, ViewModelBase Content);
+/// <summary>Una página de la ventana: título, para qué sirve, su ícono y el ViewModel que se muestra.</summary>
+/// <param name="Icon">Clave de <see cref="Views.Icons"/>.</param>
+public sealed record NavPage(string Title, string Description, string Icon, ViewModelBase Content);
 
 public sealed partial class MainWindowViewModel : ViewModelBase
 {
@@ -29,24 +30,24 @@ public sealed partial class MainWindowViewModel : ViewModelBase
 
         LogPages =
         [
-            new("Daily", "Lo que hiciste desde el último día hábil, listo para el stand-up.", Daily),
-            new("Semana", "Todo lo de esta semana, agrupado por repo.", Weekly),
-            new("Notas", "Lo que anotaste con el atajo en los últimos 14 días.", Notes),
-            new("Logros", "Lo que vale la pena contar en una evaluación o en el CV.", Achievements),
+            new("Daily", "Lo que hiciste desde el último día hábil, listo para el stand-up.", "calendar", Daily),
+            new("Semana", "Todo lo de esta semana, agrupado por repo.", "list", Weekly),
+            new("Notas", "Lo que anotaste con el atajo en los últimos 14 días.", "note", Notes),
+            new("Logros", "Lo que vale la pena contar en una evaluación o en el CV.", "star", Achievements),
         ];
-        SettingsPage = new("Configuración", "Repos, IA, apariencia y atajo de teclado.", Settings);
+        SettingsPage = new("Configuración", "Repos, IA, apariencia y atajo de teclado.", "sliders", Settings);
         _selectedLogPage = LogPages[0];
     }
 
-    /// <summary>Las páginas de la bitácora: los nodos del grafo de la barra lateral.</summary>
+    /// <summary>Las páginas de la bitácora, en el orden del menú lateral.</summary>
     public IReadOnlyList<NavPage> LogPages { get; }
     public NavPage SettingsPage { get; }
 
     private NavPage? _selectedLogPage;
 
     /// <summary>
-    /// Nodo elegido en la barra lateral. Configuración vive aparte (abajo de todo), así que al abrirla
-    /// este queda en null: ninguna página de la bitácora aparece marcada.
+    /// Página elegida en el menú lateral. Configuración vive aparte (abajo de todo), así que al abrirla
+    /// esta queda en null: ninguna página de la bitácora aparece marcada.
     /// </summary>
     public NavPage? SelectedLogPage
     {

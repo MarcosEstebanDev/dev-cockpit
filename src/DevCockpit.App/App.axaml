@@ -21,6 +21,7 @@
                     <SolidColorBrush x:Key="CockpitRail" Color="#E7EBF0" />
                     <SolidColorBrush x:Key="CockpitSurface" Color="#FFFFFF" />
                     <SolidColorBrush x:Key="CockpitHover" Color="#DCE2E9" />
+                    <SolidColorBrush x:Key="CockpitSelected" Color="#D9E5FB" />
                     <SolidColorBrush x:Key="CockpitInk" Color="#1B2027" />
                     <SolidColorBrush x:Key="CockpitMuted" Color="#56606C" />
                     <SolidColorBrush x:Key="CockpitLine" Color="#C6CED8" />
@@ -32,7 +33,8 @@
                     <SolidColorBrush x:Key="CockpitWindow" Color="#16191E" />
                     <SolidColorBrush x:Key="CockpitRail" Color="#101317" />
                     <SolidColorBrush x:Key="CockpitSurface" Color="#1E232A" />
-                    <SolidColorBrush x:Key="CockpitHover" Color="#232931" />
+                    <SolidColorBrush x:Key="CockpitHover" Color="#1C2128" />
+                    <SolidColorBrush x:Key="CockpitSelected" Color="#1E2D47" />
                     <SolidColorBrush x:Key="CockpitInk" Color="#E5E9EE" />
                     <SolidColorBrush x:Key="CockpitMuted" Color="#9AA4B0" />
                     <SolidColorBrush x:Key="CockpitLine" Color="#333A44" />
@@ -53,66 +55,71 @@
             </FluentTheme.Palettes>
         </FluentTheme>
 
-        <!-- ===== Barra lateral: la bitácora como un git log -graph ===== -->
-        <Style Selector="ListBox.rail">
+        <!-- ===== Menú lateral ===== -->
+        <Style Selector="ListBox.nav">
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="Padding" Value="0" />
         </Style>
-        <Style Selector="ListBox.rail ListBoxItem">
+        <Style Selector="ListBox.nav ListBoxItem, Button.nav-button">
             <Setter Property="Padding" Value="0" />
-            <Setter Property="Margin" Value="0" />
+            <Setter Property="Margin" Value="0,1" />
             <Setter Property="MinHeight" Value="0" />
-        </Style>
-        <Style Selector="ListBox.rail ListBoxItem /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="ListBox.rail ListBoxItem:pointerover /template/ ContentPresenter">
-            <Setter Property="Background" Value="{DynamicResource CockpitHover}" />
-        </Style>
-        <Style Selector="ListBox.rail ListBoxItem:selected /template/ ContentPresenter">
-            <Setter Property="Background" Value="Transparent" />
-        </Style>
-        <Style Selector="Rectangle.rail-line">
-            <Setter Property="Fill" Value="{DynamicResource CockpitLine}" />
-        </Style>
-        <Style Selector="Ellipse.node">
-            <Setter Property="Fill" Value="{DynamicResource CockpitRail}" />
-            <Setter Property="Stroke" Value="{DynamicResource CockpitMuted}" />
-            <Setter Property="StrokeThickness" Value="2" />
-        </Style>
-        <Style Selector="ListBox.rail ListBoxItem:selected Ellipse.node">
-            <Setter Property="Fill" Value="{DynamicResource CockpitAccent}" />
-            <Setter Property="Stroke" Value="{DynamicResource CockpitAccent}" />
-        </Style>
-        <Style Selector="TextBlock.rail-item">
-            <Setter Property="FontSize" Value="14" />
-            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
-        </Style>
-        <Style Selector="ListBox.rail ListBoxItem:selected TextBlock.rail-item">
-            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-        </Style>
-        <Style Selector="TextBlock.rail-title">
-            <Setter Property="FontSize" Value="12" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
-        </Style>
-
-        <!-- Configuración: fuera del grafo, abajo de todo. -->
-        <Style Selector="Button.rail-link">
+            <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Background" Value="Transparent" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
-            <Setter Property="HorizontalContentAlignment" Value="Left" />
-            <Setter Property="Padding" Value="8,8" />
-            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         </Style>
-        <Style Selector="Button.rail-link:pointerover /template/ ContentPresenter">
+        <Style Selector="ListBox.nav ListBoxItem /template/ ContentPresenter, Button.nav-button /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="ListBox.nav ListBoxItem:pointerover /template/ ContentPresenter, Button.nav-button:pointerover /template/ ContentPresenter">
             <Setter Property="Background" Value="{DynamicResource CockpitHover}" />
         </Style>
-        <Style Selector="Button.rail-link.active">
+        <Style Selector="ListBox.nav ListBoxItem:selected /template/ ContentPresenter, Button.nav-button.active /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CockpitSelected}" />
+        </Style>
+
+        <!-- Barrita de color a la izquierda del ítem activo. -->
+        <Style Selector="Border.marker">
+            <Setter Property="Width" Value="3" />
+            <Setter Property="Height" Value="18" />
+            <Setter Property="CornerRadius" Value="2" />
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.nav ListBoxItem:selected Border.marker, Button.nav-button.active Border.marker">
+            <Setter Property="Background" Value="{DynamicResource CockpitAccent}" />
+        </Style>
+
+        <Style Selector="Path.nav-icon">
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="16" />
+            <Setter Property="Stretch" Value="None" />
+            <Setter Property="StrokeThickness" Value="1.5" />
+            <Setter Property="StrokeLineCap" Value="Round" />
+            <Setter Property="StrokeJoin" Value="Round" />
+            <Setter Property="Stroke" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        <Style Selector="ListBox.nav ListBoxItem:selected Path.nav-icon, Button.nav-button.active Path.nav-icon">
+            <Setter Property="Stroke" Value="{DynamicResource CockpitAccent}" />
+        </Style>
+
+        <Style Selector="TextBlock.nav-text">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Margin" Value="2,0,0,0" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+        </Style>
+        <Style Selector="ListBox.nav ListBoxItem:selected TextBlock.nav-text, Button.nav-button.active TextBlock.nav-text">
             <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
             <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.nav-section">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
         </Style>
 
         <!-- ===== Encabezado de página ===== -->
@@ -146,6 +153,58 @@
         </Style>
         <Style Selector="TextBox.report:focus /template/ Border#PART_BorderElement">
             <Setter Property="Background" Value="{DynamicResource CockpitSurface}" />
+        </Style>
+
+        <!-- Vista de lectura del resumen: una hoja con jerarquía, no una consola. -->
+        <Style Selector="Border.sheet">
+            <Setter Property="Background" Value="{DynamicResource CockpitSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CockpitLine}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <Style Selector="TextBlock.sheet-empty">
+            <Setter Property="Margin" Value="26,22" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+        </Style>
+        <Style Selector="TextBlock.r-heading">
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+        </Style>
+        <Style Selector="TextBlock.r-meta">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="Margin" Value="0,0,0,2" />
+        </Style>
+        <Style Selector="TextBlock.r-body">
+            <Setter Property="FontFamily" Value="Segoe UI,Inter,sans-serif" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="LineHeight" Value="23" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+        </Style>
+        <Style Selector="Ellipse.r-dot">
+            <Setter Property="Width" Value="5" />
+            <Setter Property="Height" Value="5" />
+            <Setter Property="Fill" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+            <Setter Property="Margin" Value="4,9,0,0" />
+        </Style>
+        <!-- Etiqueta del repo: se lee de un vistazo a qué proyecto pertenece cada línea. -->
+        <Style Selector="Border.r-repo">
+            <Setter Property="Background" Value="{DynamicResource CockpitSelected}" />
+            <Setter Property="CornerRadius" Value="5" />
+            <Setter Property="Padding" Value="7,1,7,2" />
+            <Setter Property="Margin" Value="0,1,10,0" />
+            <Setter Property="VerticalAlignment" Value="Top" />
+        </Style>
+        <Style Selector="Border.r-repo > TextBlock">
+            <Setter Property="FontSize" Value="12.5" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitAccent}" />
         </Style>
 
         <Style Selector="TextBlock.muted">

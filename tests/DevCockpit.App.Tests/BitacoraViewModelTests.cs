@@ -179,4 +179,22 @@ public class BitacoraViewModelTests
         await running;
         Assert.Null(vm.Progress);
     }
+
+    [Fact]
+    public void Reading_view_follows_the_text_and_edit_mode_toggles()
+    {
+        var vm = new ReportPanelViewModel(ReportKind.Daily, (_, _, _, _, _) => Task.FromResult(new ReportResult("", false, null)),
+            new FakeClipboard(), ReportLanguage.Es);
+        Assert.False(vm.HasText);
+
+        vm.Text = "**Ayer** (vie 06/11)\n- [api] fix: algo";
+
+        Assert.True(vm.HasText);
+        Assert.Equal(2, vm.Lines.Count);
+        Assert.Equal("api", vm.Lines[1].Repo);
+        Assert.False(vm.IsEditing);
+
+        vm.ToggleEditCommand.Execute(null);
+        Assert.True(vm.IsEditing);
+    }
 }

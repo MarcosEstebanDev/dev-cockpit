@@ -166,4 +166,30 @@ public class TemplateReportBuilderTests
     {
         Assert.Contains(rule, PromptBuilder.For(ReportKind.Daily, lang, "**Ayer**\n- x\n"));
     }
+
+    [Fact]
+    public void Daily_for_ai_has_one_line_per_repo()
+    {
+        // Medido: con 30 commits sueltos, los modelos de 3B y 7B copian los 30 renglones aunque el prompt
+        // pida una línea por repo. Agrupar lo hace el código; la IA solo resume cada renglón.
+        var input = new ReportInput(Friday, Saturday,
+            [C("api", "fix: uno", 9), C("web", "feat: dos", 10), C("api", "fix: tres", 11)],
+            [N("Revisé el PR", 12)], []);
+
+        var text = TemplateReportBuilder.Daily(input, ReportLanguage.Es, groupByRepo: true);
+
+        Assert.Contains("- [api] fix: uno; fix: tres\n- [web] feat: dos\n- Revisé el PR\n", text);
+    }
+
+    [Fact]
+    public void Weekly_for_ai_has_one_line_per_repo()
+    {
+        var input = new ReportInput(Friday, Saturday,
+            [C("api", "fix: uno", 9), C("api", "fix: dos", 11)], [], []);
+
+        var text = TemplateReportBuilder.Weekly(input, ReportLanguage.Es, groupByRepo: true);
+
+        Assert.Contains("- [api] fix: uno; fix: dos\n", text);
+        Assert.DoesNotContain("**api**", text);
+    }
 }

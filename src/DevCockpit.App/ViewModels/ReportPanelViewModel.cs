@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,6 +25,23 @@ public sealed partial class ReportPanelViewModel(
     [ObservableProperty] public partial ReportLanguage Language { get; set; } = defaultLanguage;
     [ObservableProperty] public partial bool UseAi { get; set; } = true;
     [ObservableProperty] public partial string Text { get; set; } = "";
+
+    /// <summary>El resumen interpretado para la vista de lectura (títulos, viñetas, etiquetas de repo).</summary>
+    public IReadOnlyList<ReportLine> Lines { get; private set; } = [];
+    public bool HasText => !string.IsNullOrWhiteSpace(Text);
+
+    /// <summary>false: vista de lectura con formato. true: el texto crudo, para retocarlo antes de copiar.</summary>
+    [ObservableProperty] public partial bool IsEditing { get; set; }
+
+    partial void OnTextChanged(string value)
+    {
+        Lines = ReportFormatter.Parse(value);
+        OnPropertyChanged(nameof(Lines));
+        OnPropertyChanged(nameof(HasText));
+    }
+
+    [RelayCommand]
+    private void ToggleEdit() => IsEditing = !IsEditing;
     [ObservableProperty] public partial string? Warning { get; set; }
     [ObservableProperty] public partial bool IsGenerating { get; set; }
     [ObservableProperty] public partial string? CopyStatus { get; set; }
