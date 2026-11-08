@@ -91,7 +91,7 @@ public sealed partial class MainWindowViewModel : ViewModelBase
             var s = await _settings.LoadAsync(default);
             Daily.Language = s.DefaultLanguage;
             Weekly.Language = s.DefaultLanguage;
-            Daily.UseAi = Weekly.UseAi = s.Provider != LlmProviderKind.None;
+            Daily.UseAi = Weekly.UseAi = s.UseAiByDefault && s.Provider != LlmProviderKind.None;
             await Settings.LoadAsync();
             _initialized = true;
         }

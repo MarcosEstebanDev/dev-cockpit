@@ -42,6 +42,7 @@ public sealed partial class SettingsViewModel(
     [ObservableProperty] public partial string Hotkey { get; set; } = "";
     [ObservableProperty] public partial AppTheme Theme { get; set; }
     [ObservableProperty] public partial bool PreloadAi { get; set; }
+    [ObservableProperty] public partial bool UseAiByDefault { get; set; }
 
     // Los campos de key se usan solo para escribir: nunca se muestran las guardadas.
     [ObservableProperty] public partial string AnthropicKey { get; set; } = "";
@@ -73,6 +74,7 @@ public sealed partial class SettingsViewModel(
         Hotkey = _loaded.Hotkey;
         Theme = _loaded.Theme;
         PreloadAi = _loaded.PreloadAi;
+        UseAiByDefault = _loaded.UseAiByDefault;
         RefreshKeyFlags();
         RefreshHotkeyWarning();
     }
@@ -98,6 +100,7 @@ public sealed partial class SettingsViewModel(
         Hotkey = Hotkey.Trim(),
         Theme = Theme,
         PreloadAi = PreloadAi,
+        UseAiByDefault = UseAiByDefault,
     };
 
     [RelayCommand]

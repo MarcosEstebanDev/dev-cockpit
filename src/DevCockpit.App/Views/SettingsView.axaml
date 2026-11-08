@@ -47,6 +47,12 @@
             <ComboBox ItemsSource="{Binding Providers}" SelectedItem="{Binding Provider}" />
             <TextBlock Text="Ollama corre en tu PC. Con Claude o ChatGPT, antes de cada envío vas a ver el texto exacto."
                        TextWrapping="Wrap" Classes="muted" />
+            <Border Classes="warning">
+                <TextBlock TextWrapping="Wrap"
+                           Text="En una PC sin placa de video compatible, la IA local tarda 1 a 3 minutos y suele copiar los commits en vez de resumirlos. Para resúmenes redactados en segundos, elegí Claude (claude-haiku-5-5, centavos por mes)." />
+            </Border>
+            <CheckBox IsChecked="{Binding UseAiByDefault}"
+                      Content="Tildar &quot;Redactar con IA&quot; al abrir la app" />
             <CheckBox IsChecked="{Binding PreloadAi}"
                       Content="Precargar la IA al abrir la app (la primera daily no espera, pero Ollama ocupa ~5 GB de RAM)" />
 

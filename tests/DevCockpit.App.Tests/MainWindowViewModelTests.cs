@@ -125,4 +125,15 @@ public class MainWindowViewModelTests
         vm.SelectedLogPage = vm.LogPages[3];
         Assert.Same(vm.Achievements, vm.CurrentPage.Content);
     }
+
+    [Fact]
+    public async Task Panels_start_without_ai_unless_the_setting_says_so()
+    {
+        var vm = Vm();
+
+        await vm.RefreshAsync();
+
+        Assert.False(vm.Daily.UseAi);
+        Assert.False(vm.Weekly.UseAi);
+    }
 }

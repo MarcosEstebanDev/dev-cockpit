@@ -192,4 +192,16 @@ public class TemplateReportBuilderTests
         Assert.Contains("- [api] fix: uno; fix: dos\n", text);
         Assert.DoesNotContain("**api**", text);
     }
+
+    [Fact]
+    public void Daily_keeps_each_repo_together()
+    {
+        // Con 30 commits mezclados por hora, la daily saltaba de repo en repo y costaba leerla.
+        var input = new ReportInput(Friday, Saturday,
+            [C("api", "uno", 9), C("web", "dos", 10), C("api", "tres", 11)], [], []);
+
+        var text = TemplateReportBuilder.Daily(input, ReportLanguage.Es);
+
+        Assert.Contains("- [api] uno\n- [api] tres\n- [web] dos\n", text);
+    }
 }

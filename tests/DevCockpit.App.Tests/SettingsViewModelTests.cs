@@ -203,4 +203,19 @@ public class SettingsViewModelTests
 
         Assert.False(settings.Current.PreloadAi);
     }
+
+    [Fact]
+    public async Task Ai_by_default_is_off_and_can_be_turned_on()
+    {
+        // La IA local en CPU tarda minutos: no puede quedar tildada sola al abrir la app.
+        var settings = new FakeSettings(new AppSettings());
+        var vm = Vm(settings);
+        await vm.LoadAsync();
+        Assert.False(vm.UseAiByDefault);
+
+        vm.UseAiByDefault = true;
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.True(settings.Current.UseAiByDefault);
+    }
 }

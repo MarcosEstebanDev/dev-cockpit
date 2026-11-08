@@ -2,6 +2,8 @@
 
 [Read in English](README.md)
 
+![dev-cockpit: vista Daily con los commits agrupados por repo](docs/screenshot.png)
+
 App de escritorio para el día a día de un dev. Vive en la bandeja del sistema y, por ahora, trae el
 módulo **Bitácora**:
 
@@ -67,7 +69,7 @@ En **Configuración**:
 ## Desarrollo
 
 ```powershell
-dotnet test                                   # 158 tests
+dotnet test                                   # 162 tests
 dotnet run --project src/DevCockpit.App       # correr en modo debug
 ```
 
