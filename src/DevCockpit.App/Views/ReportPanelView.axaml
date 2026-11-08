@@ -3,22 +3,30 @@
              xmlns:vm="using:DevCockpit.App.ViewModels"
              x:Class="DevCockpit.App.Views.ReportPanelView"
              x:DataType="vm:ReportPanelViewModel">
-    <DockPanel Margin="12">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
-            <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="70" />
-            <CheckBox Content="Usar IA" IsChecked="{Binding UseAi}" />
-            <Button Content="Generar" Command="{Binding GenerateCommand}" Classes="accent" />
-            <Button Content="Cancelar" Command="{Binding GenerateCancelCommand}" IsVisible="{Binding IsGenerating}" />
-            <Button Content="Copiar" Command="{Binding CopyCommand}" />
-            <TextBlock Text="{Binding Progress}" IsVisible="{Binding IsGenerating}" VerticalAlignment="Center"
-                       Classes="muted" />
-            <TextBlock Text="{Binding CopyStatus}" VerticalAlignment="Center" Classes="muted" />
-        </StackPanel>
-        <Border DockPanel.Dock="Top" Margin="0,0,0,8" Classes="warning"
+    <DockPanel>
+        <!-- Acciones a la izquierda, opciones a la derecha. -->
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="14">
+                <TextBlock Text="{Binding Progress}" IsVisible="{Binding IsGenerating}"
+                           VerticalAlignment="Center" Classes="muted" />
+                <CheckBox Content="Redactar con IA" IsChecked="{Binding UseAi}" />
+                <ComboBox ItemsSource="{Binding Languages}" SelectedItem="{Binding Language}" MinWidth="72"
+                          ToolTip.Tip="Idioma del resumen" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Generar" Command="{Binding GenerateCommand}" Classes="accent" MinWidth="96" />
+                <Button Content="Cancelar" Command="{Binding GenerateCancelCommand}" IsVisible="{Binding IsGenerating}" />
+                <Button Content="Copiar" Command="{Binding CopyCommand}" />
+                <TextBlock Text="{Binding CopyStatus}" VerticalAlignment="Center" Classes="muted" Margin="4,0,0,0" />
+            </StackPanel>
+        </DockPanel>
+
+        <Border DockPanel.Dock="Top" Margin="0,0,0,12" Classes="warning"
                 IsVisible="{Binding Warning, Converter={x:Static ObjectConverters.IsNotNull}}">
             <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
         </Border>
+
         <TextBox Text="{Binding Text}" AcceptsReturn="True" TextWrapping="Wrap" Classes="report"
-                 PlaceholderText="Tocá Generar para armar el resumen. Con IA en CPU, el texto aparece de a poco." />
+                 PlaceholderText="Tocá Generar. Con IA en tu PC el texto aparece de a poco; sin IA sale al instante." />
     </DockPanel>
 </UserControl>

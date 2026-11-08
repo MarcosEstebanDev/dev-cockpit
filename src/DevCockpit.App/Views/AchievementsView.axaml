@@ -3,12 +3,12 @@
              xmlns:vm="using:DevCockpit.App.ViewModels"
              x:Class="DevCockpit.App.Views.AchievementsView"
              x:DataType="vm:AchievementsViewModel">
-    <DockPanel Margin="12">
-        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,12">
             <Button Content="Exportar Markdown" Command="{Binding ExportCommand}" Classes="accent" />
             <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Classes="muted" />
         </StackPanel>
-        <ListBox ItemsSource="{Binding Items}">
+        <ListBox ItemsSource="{Binding Items}" Classes="rows">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:NoteRow">
                     <DockPanel>

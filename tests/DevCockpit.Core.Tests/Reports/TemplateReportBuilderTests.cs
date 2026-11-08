@@ -160,8 +160,8 @@ public class TemplateReportBuilderTests
     }
 
     [Theory]
-    [InlineData(ReportLanguage.Es, "Sé breve")]
-    [InlineData(ReportLanguage.En, "Be brief")]
+    [InlineData(ReportLanguage.Es, "una sola línea por repo")]
+    [InlineData(ReportLanguage.En, "one single line per repository")]
     public void Prompt_asks_for_a_short_answer(ReportLanguage lang, string rule)
     {
         Assert.Contains(rule, PromptBuilder.For(ReportKind.Daily, lang, "**Ayer**\n- x\n"));

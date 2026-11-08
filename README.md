@@ -50,7 +50,7 @@ Anthropic C# SDK · xUnit
 | `src/DevCockpit.Core` | Domain, ports and pure logic. No I/O. |
 | `src/DevCockpit.Infrastructure` | Adapters: git CLI, SQLite, JSON settings, Ollama / Claude / ChatGPT, Credential Manager. |
 | `src/DevCockpit.App` | Avalonia + MVVM: tray icon, windows, global hotkey. |
-| `tests/*` | 142 xUnit tests. Git tests create real temporary repositories. |
+| `tests/*` | 145 xUnit tests. Git tests create real temporary repositories. |
 
 ## Getting started
 
@@ -75,7 +75,7 @@ First run, in **Settings**: add the repositories to follow, check your git email
 ## Development
 
 ```powershell
-dotnet test                                   # 142 tests
+dotnet test                                   # 145 tests
 dotnet run --project src/DevCockpit.App       # debug run
 ```
 

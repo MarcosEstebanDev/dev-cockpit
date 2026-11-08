@@ -305,4 +305,15 @@ public class ProvidersTests
         var cap = body.RootElement.GetProperty("options").GetProperty("num_predict").GetInt32();
         Assert.InRange(cap, 200, 600);
     }
+
+    [Fact]
+    public async Task Ollama_answer_cut_by_token_cap_is_an_error_not_half_a_text()
+    {
+        // Medido: una daily de ~30 commits llegó al tope y la app mostró "- [dev" cortado.
+        _handler.ResponseBody = "{\"response\":\"- [dev\",\"done\":true,\"done_reason\":\"length\"}\n";
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+
+        var ex = await Assert.ThrowsAsync<LlmException>(() => ollama.CompleteAsync("hola", _ct));
+        Assert.Contains("se cortó", ex.Message);
+    }
 }

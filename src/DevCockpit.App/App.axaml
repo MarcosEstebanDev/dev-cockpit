@@ -9,47 +9,174 @@
         <local:ViewLocator />
     </Application.DataTemplates>
 
-    <Application.Styles>
-        <FluentTheme />
+    <!--
+      Paleta: neutros fríos de pizarra y un único acento azul tinta. Cada color tiene su versión
+      clara y oscura; las vistas usan siempre los nombres Cockpit*, nunca colores sueltos.
+    -->
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.ThemeDictionaries>
+                <ResourceDictionary x:Key="Light">
+                    <SolidColorBrush x:Key="CockpitWindow" Color="#F3F5F8" />
+                    <SolidColorBrush x:Key="CockpitRail" Color="#E7EBF0" />
+                    <SolidColorBrush x:Key="CockpitSurface" Color="#FFFFFF" />
+                    <SolidColorBrush x:Key="CockpitHover" Color="#DCE2E9" />
+                    <SolidColorBrush x:Key="CockpitInk" Color="#1B2027" />
+                    <SolidColorBrush x:Key="CockpitMuted" Color="#56606C" />
+                    <SolidColorBrush x:Key="CockpitLine" Color="#C6CED8" />
+                    <SolidColorBrush x:Key="CockpitAccent" Color="#2F6FDE" />
+                    <SolidColorBrush x:Key="CockpitWarning" Color="#26D98E04" />
+                    <SolidColorBrush x:Key="CockpitWarningLine" Color="#B07400" />
+                </ResourceDictionary>
+                <ResourceDictionary x:Key="Dark">
+                    <SolidColorBrush x:Key="CockpitWindow" Color="#16191E" />
+                    <SolidColorBrush x:Key="CockpitRail" Color="#101317" />
+                    <SolidColorBrush x:Key="CockpitSurface" Color="#1E232A" />
+                    <SolidColorBrush x:Key="CockpitHover" Color="#232931" />
+                    <SolidColorBrush x:Key="CockpitInk" Color="#E5E9EE" />
+                    <SolidColorBrush x:Key="CockpitMuted" Color="#9AA4B0" />
+                    <SolidColorBrush x:Key="CockpitLine" Color="#333A44" />
+                    <SolidColorBrush x:Key="CockpitAccent" Color="#6E9EF5" />
+                    <SolidColorBrush x:Key="CockpitWarning" Color="#33D98E04" />
+                    <SolidColorBrush x:Key="CockpitWarningLine" Color="#E0A33A" />
+                </ResourceDictionary>
+            </ResourceDictionary.ThemeDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
 
+    <Application.Styles>
+        <!-- El acento de Fluent (botones de acción, checkboxes, foco) es el mismo azul que los nodos. -->
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Light" Accent="#2F6FDE" RegionColor="#F3F5F8" />
+                <ColorPaletteResources x:Key="Dark" Accent="#3F7BE6" RegionColor="#16191E" />
+            </FluentTheme.Palettes>
+        </FluentTheme>
+
+        <!-- ===== Barra lateral: la bitácora como un git log -graph ===== -->
+        <Style Selector="ListBox.rail">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="Padding" Value="0" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="MinHeight" Value="0" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CockpitHover}" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem:selected /template/ ContentPresenter">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="Rectangle.rail-line">
+            <Setter Property="Fill" Value="{DynamicResource CockpitLine}" />
+        </Style>
+        <Style Selector="Ellipse.node">
+            <Setter Property="Fill" Value="{DynamicResource CockpitRail}" />
+            <Setter Property="Stroke" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="StrokeThickness" Value="2" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem:selected Ellipse.node">
+            <Setter Property="Fill" Value="{DynamicResource CockpitAccent}" />
+            <Setter Property="Stroke" Value="{DynamicResource CockpitAccent}" />
+        </Style>
+        <Style Selector="TextBlock.rail-item">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+        </Style>
+        <Style Selector="ListBox.rail ListBoxItem:selected TextBlock.rail-item">
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+        <Style Selector="TextBlock.rail-title">
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+        </Style>
+
+        <!-- Configuración: fuera del grafo, abajo de todo. -->
+        <Style Selector="Button.rail-link">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="HorizontalContentAlignment" Value="Left" />
+            <Setter Property="Padding" Value="8,8" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+        </Style>
+        <Style Selector="Button.rail-link:pointerover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{DynamicResource CockpitHover}" />
+        </Style>
+        <Style Selector="Button.rail-link.active">
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+        </Style>
+
+        <!-- ===== Encabezado de página ===== -->
+        <Style Selector="TextBlock.page-title">
+            <Setter Property="FontSize" Value="24" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+        </Style>
+        <Style Selector="TextBlock.page-sub">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
+            <Setter Property="TextWrapping" Value="Wrap" />
+        </Style>
+
+        <!-- ===== Contenido ===== -->
         <!-- Texto de los resúmenes: letra proporcional, más grande y con aire entre líneas. -->
         <Style Selector="TextBox.report">
             <Setter Property="FontFamily" Value="Segoe UI,Inter,sans-serif" />
             <Setter Property="FontSize" Value="15" />
             <Setter Property="LineHeight" Value="24" />
-            <Setter Property="Padding" Value="16,12" />
+            <Setter Property="Padding" Value="20,16" />
+            <Setter Property="CornerRadius" Value="8" />
+        </Style>
+        <!-- El resumen es el protagonista: superficie propia, no el gris del fondo (en reposo, hover y foco). -->
+        <Style Selector="TextBox.report /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource CockpitSurface}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CockpitLine}" />
+        </Style>
+        <Style Selector="TextBox.report:pointerover /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource CockpitSurface}" />
+        </Style>
+        <Style Selector="TextBox.report:focus /template/ Border#PART_BorderElement">
+            <Setter Property="Background" Value="{DynamicResource CockpitSurface}" />
         </Style>
 
-        <!-- Pestañas: el tamaño por defecto de Fluent (28) es enorme para una herramienta. -->
-        <Style Selector="TabItem">
-            <Setter Property="FontSize" Value="17" />
-            <Setter Property="MinHeight" Value="40" />
-            <Setter Property="Padding" Value="12,0" />
-        </Style>
-
-        <!-- Texto secundario: atenuado pero legible también en modo oscuro. -->
         <Style Selector="TextBlock.muted">
-            <Setter Property="Opacity" Value="0.78" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitMuted}" />
         </Style>
 
-        <!-- Encabezados de sección en Configuración. -->
+        <!-- Secciones de Configuración. -->
         <Style Selector="TextBlock.section">
             <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Margin" Value="0,6,0,0" />
+            <Setter Property="Foreground" Value="{DynamicResource CockpitInk}" />
+            <Setter Property="Margin" Value="0,10,0,0" />
         </Style>
 
-        <Style Selector="ListBoxItem">
-            <Setter Property="Padding" Value="10,8" />
+        <!-- Filas de notas y logros: separadas por una línea fina, sin tarjetas. -->
+        <Style Selector="ListBox.rows">
+            <Setter Property="Background" Value="Transparent" />
+        </Style>
+        <Style Selector="ListBox.rows ListBoxItem">
+            <Setter Property="Padding" Value="4,12" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CockpitLine}" />
+            <Setter Property="BorderThickness" Value="0,0,0,1" />
         </Style>
 
-        <!-- Aviso amarillo: el mismo tono funciona sobre fondo claro y oscuro. -->
+        <!-- Aviso: borde izquierdo de color, como una nota al margen de la bitácora. -->
         <Style Selector="Border.warning">
-            <Setter Property="Background" Value="#33E0A100" />
-            <Setter Property="BorderBrush" Value="#80E0A100" />
-            <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="6" />
-            <Setter Property="Padding" Value="10,8" />
+            <Setter Property="Background" Value="{DynamicResource CockpitWarning}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource CockpitWarningLine}" />
+            <Setter Property="BorderThickness" Value="3,0,0,0" />
+            <Setter Property="CornerRadius" Value="0,6,6,0" />
+            <Setter Property="Padding" Value="12,10" />
         </Style>
     </Application.Styles>
 </Application>

@@ -4,10 +4,8 @@
              x:Class="DevCockpit.App.Views.NotesView"
              x:DataType="vm:NotesViewModel"
              x:Name="Root">
-    <DockPanel Margin="12">
-        <TextBlock DockPanel.Dock="Top" Text="Notas de los últimos 14 días (Ctrl+Alt+N para anotar desde cualquier lado)"
-                   Classes="muted" Margin="0,0,0,8" TextWrapping="Wrap" />
-        <ListBox ItemsSource="{Binding Items}">
+    <DockPanel>
+        <ListBox ItemsSource="{Binding Items}" Classes="rows">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:NoteRow">
                     <DockPanel>

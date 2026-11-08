@@ -74,7 +74,13 @@ public sealed class OllamaProvider(HttpClient http, string baseUrl, string model
                     text.Append(value);
                     partial?.Report(text.ToString());
                 }
-                if (root.TryGetProperty("done", out var done) && done.ValueKind == JsonValueKind.True) break;
+                if (root.TryGetProperty("done", out var done) && done.ValueKind == JsonValueKind.True)
+                {
+                    // Texto cortado a la mitad es peor que nada: el servicio cae a la plantilla completa.
+                    if (root.TryGetProperty("done_reason", out var reason) && reason.GetString() == "length")
+                        throw new LlmException($"la respuesta se cortó al llegar al tope de {MaxAnswerTokens} tokens");
+                    break;
+                }
             }
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
