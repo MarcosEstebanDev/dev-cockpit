@@ -100,4 +100,29 @@ public class MainWindowViewModelTests
         Assert.Single(vm.Achievements.Items);
         Assert.Equal("Ctrl+Alt+K", vm.Settings.Hotkey);
     }
+
+    [Fact]
+    public void Starts_on_daily_with_the_logbook_pages_in_order()
+    {
+        var vm = Vm();
+
+        Assert.Equal(["Daily", "Semana", "Notas", "Logros"], vm.LogPages.Select(p => p.Title));
+        Assert.Same(vm.Daily, vm.CurrentPage.Content);
+    }
+
+    [Fact]
+    public void Settings_and_logbook_pages_replace_each_other()
+    {
+        var vm = Vm();
+
+        vm.SelectedLogPage = vm.LogPages[2];
+        Assert.Same(vm.Notes, vm.CurrentPage.Content);
+
+        vm.OpenSettingsCommand.Execute(null);
+        Assert.Same(vm.Settings, vm.CurrentPage.Content);
+        Assert.Null(vm.SelectedLogPage); // ningún nodo del grafo queda marcado
+
+        vm.SelectedLogPage = vm.LogPages[3];
+        Assert.Same(vm.Achievements, vm.CurrentPage.Content);
+    }
 }

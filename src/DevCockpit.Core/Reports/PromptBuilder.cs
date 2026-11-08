@@ -16,8 +16,9 @@ public static class PromptBuilder
             - Do not invent facts, tasks or numbers that are not in the draft.
             - Keep the bold headings exactly as they are.
             - Do not translate repository names (the bold lines and the names in [brackets]); keep them exactly as written.
-            - Merge commits that describe the same work into one line.
-            - Be brief: one short line per item, at most 6 items per section, no introduction or closing remarks.
+            - Under each heading write one single line per repository: "- repo-name: what was done, in a few words".
+              Notes without a repository get a line of their own.
+            - No introduction or closing remarks.
             - Reply only with the final text, in English.
 
             Draft:
@@ -29,8 +30,9 @@ public static class PromptBuilder
             - No inventes hechos, tareas ni números que no estén en el borrador.
             - Mantené los encabezados en negrita tal cual están.
             - No traduzcas los nombres de los repos (las líneas en negrita y lo que va entre [corchetes]); dejalos exactamente igual.
-            - Uní en una sola línea los commits que describen el mismo trabajo.
-            - Sé breve: una línea corta por ítem, como máximo 6 ítems por sección, sin introducción ni cierre.
+            - Debajo de cada encabezado escribí una sola línea por repo: "- nombre-del-repo: qué se hizo, en pocas palabras".
+              Las notas sin repo van en una línea propia.
+            - Sin introducción ni cierre.
             - Respondé solo con el texto final, en español.
 
             Borrador:

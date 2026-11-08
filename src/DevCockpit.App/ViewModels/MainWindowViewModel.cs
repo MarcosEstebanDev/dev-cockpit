@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DevCockpit.App.Services;
 using DevCockpit.Core.Domain;
 using DevCockpit.Core.Ports;
@@ -6,7 +9,10 @@ using DevCockpit.Core.Reports;
 
 namespace DevCockpit.App.ViewModels;
 
-public sealed class MainWindowViewModel : ViewModelBase
+/// <summary>Una página de la ventana: título, para qué sirve y el ViewModel que se muestra.</summary>
+public sealed record NavPage(string Title, string Description, ViewModelBase Content);
+
+public sealed partial class MainWindowViewModel : ViewModelBase
 {
     private readonly ISettingsStore _settings;
     private bool _initialized;
@@ -20,6 +26,50 @@ public sealed class MainWindowViewModel : ViewModelBase
         Notes = notes;
         Achievements = achievements;
         Settings = settingsVm;
+
+        LogPages =
+        [
+            new("Daily", "Lo que hiciste desde el último día hábil, listo para el stand-up.", Daily),
+            new("Semana", "Todo lo de esta semana, agrupado por repo.", Weekly),
+            new("Notas", "Lo que anotaste con el atajo en los últimos 14 días.", Notes),
+            new("Logros", "Lo que vale la pena contar en una evaluación o en el CV.", Achievements),
+        ];
+        SettingsPage = new("Configuración", "Repos, IA, apariencia y atajo de teclado.", Settings);
+        _selectedLogPage = LogPages[0];
+    }
+
+    /// <summary>Las páginas de la bitácora: los nodos del grafo de la barra lateral.</summary>
+    public IReadOnlyList<NavPage> LogPages { get; }
+    public NavPage SettingsPage { get; }
+
+    private NavPage? _selectedLogPage;
+
+    /// <summary>
+    /// Nodo elegido en la barra lateral. Configuración vive aparte (abajo de todo), así que al abrirla
+    /// este queda en null: ninguna página de la bitácora aparece marcada.
+    /// </summary>
+    public NavPage? SelectedLogPage
+    {
+        get => _selectedLogPage;
+        set
+        {
+            if (!SetProperty(ref _selectedLogPage, value)) return;
+            if (value is not null) IsSettingsOpen = false;
+            OnPropertyChanged(nameof(CurrentPage));
+        }
+    }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CurrentPage))]
+    public partial bool IsSettingsOpen { get; set; }
+
+    public NavPage CurrentPage => IsSettingsOpen ? SettingsPage : SelectedLogPage ?? LogPages[0];
+
+    [RelayCommand]
+    private void OpenSettings()
+    {
+        IsSettingsOpen = true;
+        SelectedLogPage = null;
     }
 
     public string Title => "dev-cockpit";
