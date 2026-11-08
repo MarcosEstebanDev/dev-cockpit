@@ -3,7 +3,7 @@
              x:Class="DevCockpit.App.App"
              xmlns:local="using:DevCockpit.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+             <!-- El tema real lo elige Configuración (Sistema, Claro u Oscuro); ver App.ApplyTheme. -->
 
     <Application.DataTemplates>
         <local:ViewLocator />
@@ -11,5 +11,45 @@
 
     <Application.Styles>
         <FluentTheme />
+
+        <!-- Texto de los resúmenes: letra proporcional, más grande y con aire entre líneas. -->
+        <Style Selector="TextBox.report">
+            <Setter Property="FontFamily" Value="Segoe UI,Inter,sans-serif" />
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="LineHeight" Value="24" />
+            <Setter Property="Padding" Value="16,12" />
+        </Style>
+
+        <!-- Pestañas: el tamaño por defecto de Fluent (28) es enorme para una herramienta. -->
+        <Style Selector="TabItem">
+            <Setter Property="FontSize" Value="17" />
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="Padding" Value="12,0" />
+        </Style>
+
+        <!-- Texto secundario: atenuado pero legible también en modo oscuro. -->
+        <Style Selector="TextBlock.muted">
+            <Setter Property="Opacity" Value="0.78" />
+        </Style>
+
+        <!-- Encabezados de sección en Configuración. -->
+        <Style Selector="TextBlock.section">
+            <Setter Property="FontSize" Value="15" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Margin" Value="0,6,0,0" />
+        </Style>
+
+        <Style Selector="ListBoxItem">
+            <Setter Property="Padding" Value="10,8" />
+        </Style>
+
+        <!-- Aviso amarillo: el mismo tono funciona sobre fondo claro y oscuro. -->
+        <Style Selector="Border.warning">
+            <Setter Property="Background" Value="#33E0A100" />
+            <Setter Property="BorderBrush" Value="#80E0A100" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="10,8" />
+        </Style>
     </Application.Styles>
 </Application>

@@ -16,7 +16,12 @@ public sealed class ReportService(
     ICloudSendConfirmation confirmation,
     IClock clock)
 {
-    public async Task<ReportResult> BuildAsync(ReportKind kind, ReportLanguage lang, bool useAi, CancellationToken ct)
+    public Task<ReportResult> BuildAsync(ReportKind kind, ReportLanguage lang, bool useAi, CancellationToken ct)
+        => BuildAsync(kind, lang, useAi, null, ct);
+
+    /// <param name="partial">Recibe el texto de la IA a medida que se genera (null: solo el final).</param>
+    public async Task<ReportResult> BuildAsync(ReportKind kind, ReportLanguage lang, bool useAi,
+        IProgress<string>? partial, CancellationToken ct)
     {
         var s = await settings.LoadAsync(ct);
         var now = clock.Now;
@@ -43,13 +48,13 @@ public sealed class ReportService(
         var setupWarning = s.Repos.Count > 0 && s.AuthorEmails.Count == 0
             ? "No hay emails de git en Configuración: no se incluyeron commits"
             : null;
-        var report = await BuildWithAiAsync(useAi, s, kind, lang, draft, commits, windowNotes, ct);
+        var report = await BuildWithAiAsync(useAi, s, kind, lang, draft, commits, windowNotes, partial, ct);
         return setupWarning is null ? report
             : report with { Warning = report.Warning is null ? setupWarning : $"{setupWarning}. {report.Warning}" };
     }
 
     private async Task<ReportResult> BuildWithAiAsync(bool useAi, AppSettings s, ReportKind kind, ReportLanguage lang,
-        string draft, List<Commit> commits, IReadOnlyList<Note> windowNotes, CancellationToken ct)
+        string draft, List<Commit> commits, IReadOnlyList<Note> windowNotes, IProgress<string>? partial, CancellationToken ct)
     {
         if (!useAi) return new ReportResult(draft, false, null);
 
@@ -86,7 +91,7 @@ public sealed class ReportService(
 
         try
         {
-            return new ReportResult(await llm.CompleteAsync(prompt, ct), true, null);
+            return new ReportResult(await llm.CompleteAsync(prompt, partial, ct), true, null);
         }
         catch (LlmException e)
         {

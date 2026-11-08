@@ -5,10 +5,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Platform;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using DevCockpit.App.Services;
 using DevCockpit.App.ViewModels;
 using DevCockpit.App.Views;
+using DevCockpit.Core.Domain;
 using DevCockpit.Core.Input;
 using DevCockpit.Core.Ports;
 using DevCockpit.Infrastructure.Llm;
@@ -45,6 +47,7 @@ public partial class App : Application
 
             _window = new MainWindow { DataContext = Services.GetRequiredService<MainWindowViewModel>() };
             SetupTray(desktop);
+            _ = ErrorLog.Observe(ApplyThemeAsync(), "tema");
             _ = ErrorLog.Observe(WarmUpLocalAiAsync(), "precarga de Ollama");
             _ = ErrorLog.Observe(StartHotkeyAsync(), "atajo global", HotkeyFailed);
             Instance?.Listen(() => Dispatcher.UIThread.Post(ShowMainWindow));
@@ -115,6 +118,21 @@ public partial class App : Application
         _quickNote.Show();
         _quickNote.Activate();
     }
+
+    private async Task ApplyThemeAsync()
+    {
+        var settings = await Services.GetRequiredService<ISettingsStore>().LoadAsync(default);
+        ApplyTheme(settings.Theme);
+        Services.GetRequiredService<SettingsViewModel>().Saved += s => ApplyTheme(s.Theme);
+    }
+
+    /// <summary>Cambia todas las ventanas en vivo: Fluent redefine sus colores por variante de tema.</summary>
+    private void ApplyTheme(AppTheme theme) => RequestedThemeVariant = theme switch
+    {
+        AppTheme.Light => ThemeVariant.Light,
+        AppTheme.Dark => ThemeVariant.Dark,
+        _ => ThemeVariant.Default,
+    };
 
     /// <summary>Con Ollama, carga el modelo en segundo plano: en un HDD tarda minutos y así no se espera al generar.</summary>
     private static async Task WarmUpLocalAiAsync()

@@ -57,6 +57,12 @@ public class ReportServiceTests
         public string DisplayName => isLocal ? "Ollama (test)" : "Claude (test)";
         public bool IsLocal => isLocal;
 
+        public Task<string> CompleteAsync(string prompt, IProgress<string>? partial, CancellationToken ct)
+        {
+            partial?.Report("parcial de la IA");
+            return CompleteAsync(prompt, ct);
+        }
+
         public Task<string> CompleteAsync(string prompt, CancellationToken ct)
         {
             LastPrompt = prompt;
@@ -348,5 +354,24 @@ public class ReportServiceTests
 
         Assert.Equal("No hay emails de git en Configuración: no se incluyeron commits. "
             + "No hay un proveedor de IA elegido en Configuración", result.Warning);
+    }
+
+    private sealed class ListProgress : IProgress<string>
+    {
+        public List<string> Items { get; } = [];
+        public void Report(string value) => Items.Add(value);
+    }
+
+    [Fact]
+    public async Task Ai_partial_text_reaches_the_caller()
+    {
+        CommitIn("api", "fix: algo");
+        var partial = new ListProgress();
+
+        var result = await Service(new FakeLlm(isLocal: true))
+            .BuildAsync(ReportKind.Daily, ReportLanguage.Es, useAi: true, partial, _ct);
+
+        Assert.Equal(["parcial de la IA"], partial.Items);
+        Assert.Equal("texto de la IA", result.Text);
     }
 }

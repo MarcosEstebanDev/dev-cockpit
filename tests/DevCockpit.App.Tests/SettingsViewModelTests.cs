@@ -174,4 +174,18 @@ public class SettingsViewModelTests
 
         Assert.Empty(vm.Repos);
     }
+
+    [Fact]
+    public async Task Theme_is_loaded_and_saved()
+    {
+        var settings = new FakeSettings(new AppSettings { Theme = AppTheme.Light });
+        var vm = Vm(settings);
+        await vm.LoadAsync();
+        Assert.Equal(AppTheme.Light, vm.Theme);
+
+        vm.Theme = AppTheme.Dark;
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal(AppTheme.Dark, settings.Current.Theme);
+    }
 }

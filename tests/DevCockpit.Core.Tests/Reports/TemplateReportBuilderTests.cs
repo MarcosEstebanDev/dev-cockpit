@@ -158,4 +158,12 @@ public class TemplateReportBuilderTests
 
         Assert.Equal("- 2026-11-06: Bajé la query\n  de la home (4 s a 300 ms)\n", text);
     }
+
+    [Theory]
+    [InlineData(ReportLanguage.Es, "Sé breve")]
+    [InlineData(ReportLanguage.En, "Be brief")]
+    public void Prompt_asks_for_a_short_answer(ReportLanguage lang, string rule)
+    {
+        Assert.Contains(rule, PromptBuilder.For(ReportKind.Daily, lang, "**Ayer**\n- x\n"));
+    }
 }

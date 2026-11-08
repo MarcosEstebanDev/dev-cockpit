@@ -48,5 +48,5 @@ internal static class HttpJson
     public static HttpRequestMessage Json(string url, object body) =>
         new(HttpMethod.Post, url) { Content = JsonContent.Create(body) };
 
-    private static string Shorten(string text) => text.Length <= 300 ? text : text[..300] + "…";
+    internal static string Shorten(string text) => text.Length <= 300 ? text : text[..300] + "…";
 }

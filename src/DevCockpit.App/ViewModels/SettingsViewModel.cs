@@ -29,6 +29,7 @@ public sealed partial class SettingsViewModel(
     public ObservableCollection<WatchedRepo> Repos { get; } = [];
     public LlmProviderKind[] Providers { get; } = Enum.GetValues<LlmProviderKind>();
     public ReportLanguage[] Languages { get; } = [ReportLanguage.Es, ReportLanguage.En];
+    public AppTheme[] Themes { get; } = Enum.GetValues<AppTheme>();
 
     [ObservableProperty] public partial string AuthorEmailsText { get; set; } = "";
     [ObservableProperty] public partial string GitExecutable { get; set; } = "git";
@@ -39,6 +40,7 @@ public sealed partial class SettingsViewModel(
     [ObservableProperty] public partial string AnthropicModel { get; set; } = "";
     [ObservableProperty] public partial string OpenAIModel { get; set; } = "";
     [ObservableProperty] public partial string Hotkey { get; set; } = "";
+    [ObservableProperty] public partial AppTheme Theme { get; set; }
 
     // Los campos de key se usan solo para escribir: nunca se muestran las guardadas.
     [ObservableProperty] public partial string AnthropicKey { get; set; } = "";
@@ -68,6 +70,7 @@ public sealed partial class SettingsViewModel(
         AnthropicModel = _loaded.AnthropicModel;
         OpenAIModel = _loaded.OpenAIModel;
         Hotkey = _loaded.Hotkey;
+        Theme = _loaded.Theme;
         RefreshKeyFlags();
         RefreshHotkeyWarning();
     }
@@ -91,6 +94,7 @@ public sealed partial class SettingsViewModel(
         AnthropicModel = AnthropicModel.Trim(),
         OpenAIModel = OpenAIModel.Trim(),
         Hotkey = Hotkey.Trim(),
+        Theme = Theme,
     };
 
     [RelayCommand]
@@ -142,7 +146,7 @@ public sealed partial class SettingsViewModel(
     [RelayCommand]
     private async Task TestAiAsync(CancellationToken ct)
     {
-        Status = "Probando…";
+        Status = "Probando… (si hay un resumen generándose con IA, esto espera a que termine)";
         try
         {
             var llm = llmFactory(Current());

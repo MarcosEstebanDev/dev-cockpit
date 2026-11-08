@@ -33,7 +33,7 @@ public class ProvidersTests
         using var body = JsonDocument.Parse(_handler.LastBody);
         Assert.Equal("qwen2.5:7b-instruct", body.RootElement.GetProperty("model").GetString());
         Assert.Equal("hola", body.RootElement.GetProperty("prompt").GetString());
-        Assert.False(body.RootElement.GetProperty("stream").GetBoolean());
+        Assert.True(body.RootElement.GetProperty("stream").GetBoolean()); // texto en vivo
         Assert.Equal("1h", body.RootElement.GetProperty("keep_alive").GetString()); // que el modelo quede en RAM
         Assert.True(ollama.IsLocal);
     }
@@ -259,5 +259,50 @@ public class ProvidersTests
         var factory = new LlmProviderFactory(Http, secrets);
 
         Assert.IsType<AnthropicProvider>(factory.Create(new AppSettings { Provider = LlmProviderKind.Anthropic }));
+    }
+
+    private sealed class ListProgress : IProgress<string>
+    {
+        public List<string> Items { get; } = [];
+        public void Report(string value) => Items.Add(value);
+    }
+
+    [Fact]
+    public async Task Ollama_streams_partial_text_as_it_arrives()
+    {
+        _handler.ResponseBody = "{\"response\":\"**Ayer**\\n\",\"done\":false}\n"
+                              + "{\"response\":\"- arreglé el SLA\",\"done\":false}\n"
+                              + "{\"response\":\"\",\"done\":true}\n";
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+        var partial = new ListProgress();
+
+        var text = await ollama.CompleteAsync("hola", partial, _ct);
+
+        Assert.Equal("**Ayer**\n- arreglé el SLA", text);
+        Assert.Equal(["**Ayer**\n", "**Ayer**\n- arreglé el SLA"], partial.Items);
+    }
+
+    [Fact]
+    public async Task Ollama_error_inside_stream_throws_LlmException()
+    {
+        _handler.ResponseBody = "{\"response\":\"Hola\",\"done\":false}\n{\"error\":\"model runner crashed\"}\n";
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+
+        var ex = await Assert.ThrowsAsync<LlmException>(() => ollama.CompleteAsync("hola", _ct));
+        Assert.Contains("model runner crashed", ex.Message);
+    }
+
+    [Fact]
+    public async Task Ollama_caps_answer_length()
+    {
+        // En CPU sale a ~3 tokens/s: una daily de 570 tokens tardó 3m20s. El tope evita respuestas eternas.
+        _handler.ResponseBody = """{"response":"ok","done":true}""";
+        var ollama = new OllamaProvider(Http, "http://localhost:11434", "m");
+
+        await ollama.CompleteAsync("hola", _ct);
+
+        using var body = JsonDocument.Parse(_handler.LastBody);
+        var cap = body.RootElement.GetProperty("options").GetProperty("num_predict").GetInt32();
+        Assert.InRange(cap, 200, 600);
     }
 }

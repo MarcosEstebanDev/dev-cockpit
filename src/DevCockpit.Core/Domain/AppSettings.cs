@@ -12,5 +12,6 @@ public sealed record AppSettings
     public string AnthropicModel { get; init; } = "claude-haiku-5-5";
     public string OpenAIModel { get; init; } = "";
     public string Hotkey { get; init; } = "Ctrl+Alt+N";
+    public AppTheme Theme { get; init; } = AppTheme.System;
     public List<string> CloudConfirmedRepos { get; init; } = [];
 }

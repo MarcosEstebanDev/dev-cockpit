@@ -17,6 +17,7 @@ public static class PromptBuilder
             - Keep the bold headings exactly as they are.
             - Do not translate repository names (the bold lines and the names in [brackets]); keep them exactly as written.
             - Merge commits that describe the same work into one line.
+            - Be brief: one short line per item, at most 6 items per section, no introduction or closing remarks.
             - Reply only with the final text, in English.
 
             Draft:
@@ -29,6 +30,7 @@ public static class PromptBuilder
             - Mantené los encabezados en negrita tal cual están.
             - No traduzcas los nombres de los repos (las líneas en negrita y lo que va entre [corchetes]); dejalos exactamente igual.
             - Uní en una sola línea los commits que describen el mismo trabajo.
+            - Sé breve: una línea corta por ítem, como máximo 6 ítems por sección, sin introducción ni cierre.
             - Respondé solo con el texto final, en español.
 
             Borrador:

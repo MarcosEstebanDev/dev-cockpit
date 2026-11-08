@@ -6,13 +6,13 @@
     <DockPanel Margin="12">
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="12" Margin="0,0,0,8">
             <Button Content="Exportar Markdown" Command="{Binding ExportCommand}" Classes="accent" />
-            <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Opacity="0.7" />
+            <TextBlock Text="{Binding Status}" VerticalAlignment="Center" Classes="muted" />
         </StackPanel>
         <ListBox ItemsSource="{Binding Items}">
             <ListBox.ItemTemplate>
                 <DataTemplate x:DataType="vm:NoteRow">
                     <DockPanel>
-                        <TextBlock DockPanel.Dock="Left" Text="{Binding When}" Width="120" Opacity="0.7" />
+                        <TextBlock DockPanel.Dock="Left" Text="{Binding When}" Width="120" Classes="muted" />
                         <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
                     </DockPanel>
                 </DataTemplate>
