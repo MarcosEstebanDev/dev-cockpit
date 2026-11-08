@@ -1,83 +1,98 @@
 # dev-cockpit
 
-App de escritorio para el día a día de un dev. Vive en la bandeja del sistema y, por ahora, trae el
-módulo **Bitácora**:
+**A desktop sidekick for developers: capture what you did in one keystroke, get your stand-up written for you.**
 
-- **Nota rápida** con `Ctrl+Alt+N` desde cualquier app: escribís, Enter, listo. Se puede marcar
-  como **logro** y agregarle un número ("de 4 s a 300 ms").
-- **Daily** (Ayer / Hoy / Bloqueos) armada con tus commits y notas del último día hábil
-  (el lunes mira el viernes).
-- **Semanal** agrupado por repo.
-- **Logros** exportables a Markdown, para el CV y las evaluaciones de desempeño.
-- Resúmenes en **español o inglés**, redactados por IA **opcional**: Ollama (local, por defecto),
-  Claude o ChatGPT. Sin IA, salen igual con una plantilla.
+[Leer en español](README.es.md)
 
-Próximos módulos (ver `docs/superpowers/specs/`): Entornos (Docker y puertos) y Queries
-(`EXPLAIN ANALYZE` de PostgreSQL).
+![.NET 10](https://img.shields.io/badge/.NET-10-512BD4) ![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44AC)
+![Tests](https://img.shields.io/badge/tests-142%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-## Instalación
+<!-- Screenshot: docs/screenshot.png (Daily tab with a generated summary) -->
 
-1. Generar el ejecutable (necesita el SDK de .NET 10):
+I built this because I kept forgetting what I did yesterday by the time the daily stand-up started.
+It lives in the system tray, reads your git history across all your repos, and turns commits plus
+quick notes into a stand-up, a weekly summary, or a list of achievements for your CV and performance
+reviews. I use it every day.
 
-   ```powershell
-   .\scripts\publish.ps1
-   ```
+## Features
 
-   Queda en `dist\DevCockpit.App.exe` (~114 MB: trae .NET adentro, no hace falta instalarlo).
+- **Quick note from anywhere** with `Ctrl+Alt+N`: type, press Enter, done. Mark it as an **achievement**
+  and attach a number ("from 4 s to 300 ms").
+- **Daily stand-up** (Yesterday / Today / Blockers) built from your commits and notes since the last
+  working day (on Monday it looks at Friday).
+- **Weekly summary** grouped by repository.
+- **Achievements** exportable to Markdown.
+- **Optional AI rewriting**, in Spanish or English:
+  - **Ollama** (local, default): nothing leaves your machine. Text **streams in live** as it is generated.
+  - **Claude** or **ChatGPT**: before every request the app shows **the exact text** that will be sent
+    and asks for confirmation.
+  - Without AI you still get a clean template.
+- **Light / dark / system theme**, and an option to skip preloading the local model (it takes ~5 GB of RAM).
 
-2. IA local (opcional, recomendado): instalar [Ollama](https://ollama.com) y bajar el modelo:
+## Design decisions
 
-   ```powershell
-   ollama pull qwen2.5:7b-instruct
-   ```
+| Decision | Why |
+|---|---|
+| **Hexagonal architecture** (`Core` / `Infrastructure` / `App`) | The domain (working days, templates, report service, hotkey rules) has no I/O and is tested in isolation. Git, SQLite, LLM providers and the OS are adapters behind ports. |
+| **The AI only rewrites a draft, never raw data** | The model receives the template already built from commits and notes, so the user confirms exactly what is sent and the model can only rephrase facts that are already there. |
+| **Privacy first** | Local model by default; cloud providers require explicit, per-request confirmation; API keys live in the Windows Credential Manager, never in config files. |
+| **Streaming with an inactivity timeout** | On a CPU-only machine a 7B model writes ~3 tokens/s. The timeout resets on every chunk, so a 3-minute cold load followed by a long answer never gets cut, but a hung server still does. |
+| **Git through its CLI** | Same behaviour as in your terminal (including `--all` and author filtering), no libgit2 native dependency. |
+| **AltGr-aware global hotkey** | On Spanish keyboards AltGr is sent as Left Ctrl + Right Alt; the hotkey matcher tells them apart so `Ctrl+Alt+Q` never swallows `@`. |
 
-   En una PC con disco HDD y sin GPU compatible, la **primera** carga del modelo tarda ~3 minutos.
-   La app lo precarga al abrirse y lo mantiene en memoria 1 hora (~5 GB de RAM), así que en el uso
-   normal una daily tarda ~45 s.
+## Tech stack
 
-3. Arrancar con Windows: `Win+R` → `shell:startup` → crear un acceso directo a
-   `DevCockpit.App.exe` y agregarle `--minimized` al final del destino (arranca solo en la bandeja).
+.NET 10 · C# · Avalonia UI · CommunityToolkit.Mvvm · SQLite + Dapper · SharpHook (global hotkey) ·
+Anthropic C# SDK · xUnit
 
-## Primer uso
+| Project | Contents |
+|---|---|
+| `src/DevCockpit.Core` | Domain, ports and pure logic. No I/O. |
+| `src/DevCockpit.Infrastructure` | Adapters: git CLI, SQLite, JSON settings, Ollama / Claude / ChatGPT, Credential Manager. |
+| `src/DevCockpit.App` | Avalonia + MVVM: tray icon, windows, global hotkey. |
+| `tests/*` | 142 xUnit tests. Git tests create real temporary repositories. |
 
-En **Configuración**:
+## Getting started
 
-1. **Agregar carpeta…** por cada repo que quieras seguir.
-2. Revisar **tus emails de git** (se precarga `git config --global user.email`). Si en el trabajo
-   commiteás con otro email, agregalo en otra línea.
-3. Elegir la IA y **Guardar**. **Probar IA** confirma que responde.
-
-## Privacidad
-
-- Todo se guarda en tu PC: `%APPDATA%\DevCockpit\` (`settings.json` y `devcockpit.db`).
-- Las API keys de Claude y ChatGPT van al **Administrador de credenciales de Windows**
-  (`DevCockpit:anthropic`, `DevCockpit:openai`), nunca al JSON.
-- Con **Ollama** nada sale de la PC.
-- Con **Claude o ChatGPT**, antes de cada envío la app muestra **el texto exacto** que se va a
-  mandar y pide confirmación. "No volver a preguntar" se guarda por repo; si el resumen incluye
-  notas, pregunta siempre (las notas no pertenecen a ningún repo).
-- La IA recibe el borrador ya armado (commits y notas), no el código ni los diffs.
-
-## Desarrollo
+Requirements: Windows 10/11 and the [.NET 10 SDK](https://dotnet.microsoft.com/download) to build.
 
 ```powershell
-dotnet test                                   # 141 tests
-dotnet run --project src/DevCockpit.App       # correr en modo debug
+.\scripts\publish.ps1          # self-contained exe in dist\DevCockpit.App.exe (~114 MB)
 ```
 
-| Proyecto | Qué tiene |
-|---|---|
-| `src/DevCockpit.Core` | Dominio, puertos y lógica pura (días hábiles, plantillas, servicio de resúmenes, atajos). Sin IO. |
-| `src/DevCockpit.Infrastructure` | Adaptadores: git por CLI, SQLite, JSON, Ollama / Claude (SDK oficial) / ChatGPT, Credential Manager. |
-| `src/DevCockpit.App` | Avalonia + CommunityToolkit.Mvvm: bandeja, ventanas, atajo global (SharpHook). |
-| `tests/*` | xUnit. Los de git crean repos temporales reales. |
+Local AI (optional, recommended):
 
-Diseño y plan: `docs/superpowers/specs/2026-11-07-dev-cockpit-design.md` y
-`docs/superpowers/plans/2026-11-07-bitacora.md`.
+```powershell
+ollama pull qwen2.5:7b-instruct
+```
 
-## Limitaciones conocidas
+To start with Windows: `Win+R` → `shell:startup` → create a shortcut to `DevCockpit.App.exe` with
+`--minimized` at the end of the target.
 
-- Solo probado en Windows 10. Avalonia corre en Mac y Linux, pero las API keys hoy solo se guardan
-  en Windows.
-- Con un modelo local de 7B la redacción a veces se equivoca en matices (por ejemplo, traducir
-  "días hábiles" como "holiday"). El borrador sin IA siempre está disponible desmarcando **Usar IA**.
+First run, in **Settings**: add the repositories to follow, check your git emails (pre-filled from
+`git config --global user.email`), pick the AI provider and press **Save**.
+
+## Development
+
+```powershell
+dotnet test                                   # 142 tests
+dotnet run --project src/DevCockpit.App       # debug run
+```
+
+Design spec and implementation plan: `docs/superpowers/`.
+
+## Roadmap
+
+- [x] **Module 1 · Work log**: notes, daily, weekly, achievements, AI rewriting.
+- [ ] **Module 2 · Environments**: running Docker Compose stacks and which project uses which port.
+- [ ] **Module 3 · Queries**: visual PostgreSQL `EXPLAIN ANALYZE`.
+
+## Known limitations
+
+- Tested on Windows 10 only. Avalonia runs on macOS and Linux, but API keys are stored with the
+  Windows Credential Manager for now.
+- A local 7B model sometimes gets nuances wrong; the AI-free draft is always one checkbox away.
+
+## License
+
+[MIT](LICENSE)

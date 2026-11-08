@@ -140,6 +140,7 @@ public partial class App : Application
         try
         {
             var settings = await Services.GetRequiredService<ISettingsStore>().LoadAsync(default);
+            if (!settings.PreloadAi) return; // por ejemplo, para jugar en la misma PC sin perder 5 GB
             if (Services.GetRequiredService<LlmProviderFactory>().Create(settings) is OllamaProvider ollama)
                 await ollama.WarmUpAsync(default);
         }

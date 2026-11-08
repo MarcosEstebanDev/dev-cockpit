@@ -188,4 +188,19 @@ public class SettingsViewModelTests
 
         Assert.Equal(AppTheme.Dark, settings.Current.Theme);
     }
+
+    [Fact]
+    public async Task Preload_ai_is_on_by_default_and_can_be_turned_off()
+    {
+        // Precargar Ollama ocupa ~5 GB de RAM apenas abre la app (arranca con Windows): tiene que poder apagarse.
+        var settings = new FakeSettings(new AppSettings());
+        var vm = Vm(settings);
+        await vm.LoadAsync();
+        Assert.True(vm.PreloadAi);
+
+        vm.PreloadAi = false;
+        await vm.SaveCommand.ExecuteAsync(null);
+
+        Assert.False(settings.Current.PreloadAi);
+    }
 }
