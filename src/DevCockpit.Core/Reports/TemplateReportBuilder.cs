@@ -69,7 +69,7 @@ public static class TemplateReportBuilder
         if (plain.Count > 0)
         {
             sb.Append($"**{t.Notes}**\n");
-            foreach (var n in plain) sb.Append($"- {n.Text}\n");
+            foreach (var n in plain) sb.Append($"- {Indent(n.Text)}\n");
         }
 
         var achievements = input.Notes.Where(n => n.IsAchievement).ToList();
@@ -91,7 +91,7 @@ public static class TemplateReportBuilder
         var sb = new StringBuilder();
         foreach (var n in notes.OrderByDescending(n => n.CreatedAt))
         {
-            sb.Append("- ").Append(n.CreatedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Append(": ").Append(n.Text);
+            sb.Append("- ").Append(n.CreatedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)).Append(": ").Append(Indent(n.Text));
             if (!string.IsNullOrWhiteSpace(n.Metric)) sb.Append($" ({n.Metric})");
             sb.Append('\n');
         }
@@ -101,11 +101,15 @@ public static class TemplateReportBuilder
     private static void AppendBullets(StringBuilder sb, List<Commit> commits, List<Note> notes)
     {
         var lines = commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}")
-            .Concat(notes.OrderBy(n => n.CreatedAt).Select(n => $"- {n.Text}"))
+            .Concat(notes.OrderBy(n => n.CreatedAt).Select(n => $"- {Indent(n.Text)}"))
             .ToList();
         if (lines.Count == 0) lines.Add("- ");
         foreach (var line in lines) sb.Append(line).Append('\n');
     }
+
+    /// <summary>Las líneas extra de una nota (Shift+Enter) van sangradas para seguir dentro de su viñeta.</summary>
+    private static string Indent(string text)
+        => string.Join("\n  ", text.ReplaceLineEndings("\n").Split('\n'));
 
     private static void AppendErrors(StringBuilder sb, ReportInput input, Texts t)
     {

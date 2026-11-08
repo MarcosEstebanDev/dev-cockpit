@@ -23,11 +23,29 @@ public sealed partial class QuickNoteViewModel(INoteStore notes, IClock clock) :
     [ObservableProperty] public partial string Metric { get; set; } = "";
     [ObservableProperty] public partial string? Error { get; set; }
 
+    private bool _saving;
+
     [RelayCommand]
     private async Task SaveAsync()
     {
+        // El Enter se maneja a mano en la ventana y ExecuteAsync no mira CanExecute:
+        // un segundo Enter mientras SQLite guarda duplicaría la nota.
+        if (_saving) return;
         var text = Text.Trim();
         if (text.Length == 0) return;
+        _saving = true;
+        try
+        {
+            await SaveCoreAsync(text);
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private async Task SaveCoreAsync(string text)
+    {
 
         var metric = IsAchievement && !string.IsNullOrWhiteSpace(Metric) ? Metric.Trim() : null;
         try

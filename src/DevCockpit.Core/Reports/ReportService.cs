@@ -39,6 +39,18 @@ public sealed class ReportService(
             ? TemplateReportBuilder.Daily(input, lang)
             : TemplateReportBuilder.Weekly(input, lang);
 
+        // Sin emails, git no devuelve commits: sin este aviso la daily sale vacía sin explicación.
+        var setupWarning = s.Repos.Count > 0 && s.AuthorEmails.Count == 0
+            ? "No hay emails de git en Configuración: no se incluyeron commits"
+            : null;
+        var report = await BuildWithAiAsync(useAi, s, kind, lang, draft, commits, windowNotes, ct);
+        return setupWarning is null ? report
+            : report with { Warning = report.Warning is null ? setupWarning : $"{setupWarning}. {report.Warning}" };
+    }
+
+    private async Task<ReportResult> BuildWithAiAsync(bool useAi, AppSettings s, ReportKind kind, ReportLanguage lang,
+        string draft, List<Commit> commits, IReadOnlyList<Note> windowNotes, CancellationToken ct)
+    {
         if (!useAi) return new ReportResult(draft, false, null);
 
         ILlmProvider? llm;

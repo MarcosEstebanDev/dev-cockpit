@@ -327,4 +327,26 @@ public class ReportServiceTests
         Assert.Contains("Do not translate repository names", PromptBuilder.For(ReportKind.Weekly, ReportLanguage.En, "x"));
         Assert.Contains("No traduzcas los nombres de los repos", PromptBuilder.For(ReportKind.Weekly, ReportLanguage.Es, "x"));
     }
+
+    [Fact]
+    public async Task Warns_when_there_are_repos_but_no_emails()
+    {
+        // Minor 4: sin emails, git no devuelve commits y la daily salía vacía sin explicación.
+        await _settings.SaveAsync(_settings.Current with { AuthorEmails = [] }, _ct);
+
+        var result = await Service().BuildAsync(ReportKind.Daily, ReportLanguage.Es, useAi: false, _ct);
+
+        Assert.Equal("No hay emails de git en Configuración: no se incluyeron commits", result.Warning);
+    }
+
+    [Fact]
+    public async Task Email_warning_is_kept_when_ai_also_warns()
+    {
+        await _settings.SaveAsync(_settings.Current with { AuthorEmails = [] }, _ct);
+
+        var result = await Service(llm: null).BuildAsync(ReportKind.Daily, ReportLanguage.Es, useAi: true, _ct);
+
+        Assert.Equal("No hay emails de git en Configuración: no se incluyeron commits. "
+            + "No hay un proveedor de IA elegido en Configuración", result.Warning);
+    }
 }

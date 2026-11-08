@@ -138,4 +138,24 @@ public class TemplateReportBuilderTests
         Assert.EndsWith("> No se pudo leer: roto, borrado\n", TemplateReportBuilder.Daily(input, ReportLanguage.Es));
         Assert.EndsWith("> Could not read: roto, borrado\n", TemplateReportBuilder.Weekly(input, ReportLanguage.En));
     }
+
+    [Fact]
+    public void Multiline_note_stays_inside_its_bullet()
+    {
+        // Minor 11: una nota con Shift+Enter partía la viñeta y la segunda línea quedaba suelta.
+        var input = new ReportInput(Friday, Saturday, [], [N("Migré la base\r\nfaltan los índices", 12)], []);
+
+        var text = TemplateReportBuilder.Daily(input, ReportLanguage.Es);
+
+        Assert.Contains("- Migré la base\n  faltan los índices\n", text);
+    }
+
+    [Fact]
+    public void Multiline_achievement_stays_inside_its_bullet()
+    {
+        var text = TemplateReportBuilder.Achievements(
+            [N("Bajé la query\nde la home", 12, achievement: true, metric: "4 s a 300 ms")], ReportLanguage.Es);
+
+        Assert.Equal("- 2026-11-06: Bajé la query\n  de la home (4 s a 300 ms)\n", text);
+    }
 }

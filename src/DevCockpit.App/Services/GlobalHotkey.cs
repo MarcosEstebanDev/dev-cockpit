@@ -41,7 +41,11 @@ public sealed class GlobalHotkey : IDisposable
     {
         if (e.Data.KeyCode != _keyCode) return;
         var mask = e.RawEvent.Mask;
-        if (mask.HasCtrl() != _hotkey.Ctrl || mask.HasAlt() != _hotkey.Alt || mask.HasShift() != _hotkey.Shift) return;
+        var pressed = new ModifierKeys(
+            LeftCtrl: mask.HasFlag(EventMask.LeftCtrl), RightCtrl: mask.HasFlag(EventMask.RightCtrl),
+            LeftAlt: mask.HasFlag(EventMask.LeftAlt), RightAlt: mask.HasFlag(EventMask.RightAlt),
+            Shift: mask.HasShift());
+        if (!_hotkey.Matches(pressed)) return;
 
         e.SuppressEvent = true; // que la "N" no llegue a la app que tiene el foco
         Dispatcher.UIThread.Post(_onPressed);

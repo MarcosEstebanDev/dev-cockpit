@@ -6,7 +6,23 @@ public sealed record Hotkey(bool Ctrl, bool Alt, bool Shift, string Key)
     public override string ToString()
         => string.Join("+", new[] { Ctrl ? "Ctrl" : null, Alt ? "Alt" : null, Shift ? "Shift" : null, Key }
             .Where(p => p is not null));
+
+    /// <summary>
+    /// AltGr llega como Ctrl izquierdo + Alt derecho: no cuenta como Ctrl+Alt, porque con teclados
+    /// en español AltGr escribe caracteres (@, #, €) y el atajo se los comería.
+    /// </summary>
+    public bool Matches(ModifierKeys m)
+    {
+        var altGr = m.LeftCtrl && m.RightAlt && !m.RightCtrl && !m.LeftAlt;
+        var ctrl = !altGr && (m.LeftCtrl || m.RightCtrl);
+        var alt = !altGr && (m.LeftAlt || m.RightAlt);
+        return ctrl == Ctrl && alt == Alt && m.Shift == Shift;
+    }
 }
+
+/// <summary>Qué modificadores estaban apretados, distinguiendo izquierda y derecha.</summary>
+public readonly record struct ModifierKeys(
+    bool LeftCtrl = false, bool RightCtrl = false, bool LeftAlt = false, bool RightAlt = false, bool Shift = false);
 
 public static class HotkeyParser
 {

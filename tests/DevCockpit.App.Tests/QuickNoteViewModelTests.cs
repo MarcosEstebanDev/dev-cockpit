@@ -103,4 +103,29 @@ public class QuickNoteViewModelTests
         Assert.False(vm.IsAchievement);
         Assert.Equal("", vm.Metric);
     }
+
+    private sealed class SlowNotes : INoteStore
+    {
+        public TaskCompletionSource Gate { get; } = new();
+        public List<Note> Notes { get; } = [];
+        public async Task AddAsync(Note n, CancellationToken ct) { await Gate.Task; Notes.Add(n); }
+        public Task<IReadOnlyList<Note>> ListAsync(DateTimeOffset f, DateTimeOffset t, CancellationToken ct) => throw new NotImplementedException();
+        public Task<IReadOnlyList<Note>> ListAchievementsAsync(CancellationToken ct) => throw new NotImplementedException();
+        public Task DeleteAsync(Guid id, CancellationToken ct) => throw new NotImplementedException();
+    }
+
+    [Fact]
+    public async Task Double_enter_while_saving_stores_one_note()
+    {
+        // Minor 6: el segundo Enter llegaba mientras SQLite todavía guardaba y duplicaba la nota.
+        var notes = new SlowNotes();
+        var vm = new QuickNoteViewModel(notes, new FakeClock()) { Text = "una sola vez" };
+
+        var first = vm.SaveCommand.ExecuteAsync(null);
+        var second = vm.SaveCommand.ExecuteAsync(null);
+        notes.Gate.SetResult();
+        await Task.WhenAll(first, second);
+
+        Assert.Single(notes.Notes);
+    }
 }
