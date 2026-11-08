@@ -48,13 +48,13 @@ public sealed class ReportService(
         var setupWarning = s.Repos.Count > 0 && s.AuthorEmails.Count == 0
             ? "No hay emails de git en Configuración: no se incluyeron commits"
             : null;
-        var report = await BuildWithAiAsync(useAi, s, kind, lang, draft, commits, windowNotes, partial, ct);
+        var report = await BuildWithAiAsync(useAi, s, kind, lang, input, draft, commits, windowNotes, partial, ct);
         return setupWarning is null ? report
             : report with { Warning = report.Warning is null ? setupWarning : $"{setupWarning}. {report.Warning}" };
     }
 
     private async Task<ReportResult> BuildWithAiAsync(bool useAi, AppSettings s, ReportKind kind, ReportLanguage lang,
-        string draft, List<Commit> commits, IReadOnlyList<Note> windowNotes, IProgress<string>? partial, CancellationToken ct)
+        ReportInput input, string draft, List<Commit> commits, IReadOnlyList<Note> windowNotes, IProgress<string>? partial, CancellationToken ct)
     {
         if (!useAi) return new ReportResult(draft, false, null);
 
@@ -69,7 +69,11 @@ public sealed class ReportService(
         }
         if (llm is null) return new ReportResult(draft, false, "No hay un proveedor de IA elegido en Configuración");
 
-        var prompt = PromptBuilder.For(kind, lang, draft);
+        // La IA recibe un renglón por repo (ver TemplateReportBuilder); si falla, se devuelve el borrador normal.
+        var aiDraft = kind == ReportKind.Daily
+            ? TemplateReportBuilder.Daily(input, lang, groupByRepo: true)
+            : TemplateReportBuilder.Weekly(input, lang, groupByRepo: true);
+        var prompt = PromptBuilder.For(kind, lang, aiDraft);
 
         if (!llm.IsLocal)
         {

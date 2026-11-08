@@ -374,4 +374,20 @@ public class ReportServiceTests
         Assert.Equal(["parcial de la IA"], partial.Items);
         Assert.Equal("texto de la IA", result.Text);
     }
+
+    [Fact]
+    public async Task Ai_gets_commits_grouped_but_fallback_keeps_one_per_line()
+    {
+        _git.ByRepo["api"] = new GitLogResult(
+        [
+            new Commit("api", "1", "yo@mail.com", Monday9.AddDays(-3).AddHours(5), "fix: uno"),
+            new Commit("api", "2", "yo@mail.com", Monday9.AddDays(-3).AddHours(6), "fix: dos"),
+        ], null);
+        var llm = new FakeLlm(isLocal: true) { Throw = new LlmException("caído") };
+
+        var result = await Service(llm).BuildAsync(ReportKind.Daily, ReportLanguage.Es, useAi: true, _ct);
+
+        Assert.Contains("- [api] fix: uno; fix: dos", llm.LastPrompt);
+        Assert.Contains("- [api] fix: uno\n- [api] fix: dos\n", result.Text);
+    }
 }

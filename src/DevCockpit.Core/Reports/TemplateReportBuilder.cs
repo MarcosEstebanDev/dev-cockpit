@@ -28,7 +28,11 @@ public static class TemplateReportBuilder
 
     private static string DayMonth(DateOnly d) => d.ToString("dd'/'MM", CultureInfo.InvariantCulture);
 
-    public static string Daily(ReportInput input, ReportLanguage lang)
+    /// <param name="groupByRepo">
+    /// Para la IA: un renglón por repo con sus commits separados por "; ". Medido con qwen2.5 3B y 7B:
+    /// con un commit por renglón copian la lista entera aunque el prompt pida resumir.
+    /// </param>
+    public static string Daily(ReportInput input, ReportLanguage lang, bool groupByRepo = false)
     {
         var t = For(lang);
         var sb = new StringBuilder();
@@ -38,19 +42,19 @@ public static class TemplateReportBuilder
         bool IsToday(DateTimeOffset when) => DateOnly.FromDateTime(when.DateTime) == input.To;
         AppendBullets(sb,
             input.Commits.Where(c => !IsToday(c.When)).ToList(),
-            input.Notes.Where(n => !IsToday(n.CreatedAt)).ToList());
+            input.Notes.Where(n => !IsToday(n.CreatedAt)).ToList(), groupByRepo);
 
         sb.Append($"**{t.Today}**\n");
         AppendBullets(sb,
             input.Commits.Where(c => IsToday(c.When)).ToList(),
-            input.Notes.Where(n => IsToday(n.CreatedAt)).ToList());
+            input.Notes.Where(n => IsToday(n.CreatedAt)).ToList(), groupByRepo);
 
         sb.Append($"**{t.Blockers}**\n- {t.None}\n");
         AppendErrors(sb, input, t);
         return sb.ToString();
     }
 
-    public static string Weekly(ReportInput input, ReportLanguage lang)
+    public static string Weekly(ReportInput input, ReportLanguage lang, bool groupByRepo = false)
     {
         var t = For(lang);
         var sb = new StringBuilder();
@@ -61,6 +65,11 @@ public static class TemplateReportBuilder
             .OrderBy(g => g.Min(c => c.When));
         foreach (var group in byRepo)
         {
+            if (groupByRepo)
+            {
+                sb.Append($"- [{group.Key}] {string.Join("; ", group.OrderBy(c => c.When).Select(c => c.Subject))}\n");
+                continue;
+            }
             sb.Append($"**{group.Key}**\n");
             foreach (var c in group.OrderBy(c => c.When)) sb.Append($"- {c.Subject}\n");
         }
@@ -98,9 +107,14 @@ public static class TemplateReportBuilder
         return sb.ToString();
     }
 
-    private static void AppendBullets(StringBuilder sb, List<Commit> commits, List<Note> notes)
+    private static void AppendBullets(StringBuilder sb, List<Commit> commits, List<Note> notes, bool groupByRepo)
     {
-        var lines = commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}")
+        var commitLines = groupByRepo
+            ? commits.GroupBy(c => c.RepoName)
+                .OrderBy(g => g.Min(c => c.When))
+                .Select(g => $"- [{g.Key}] {string.Join("; ", g.OrderBy(c => c.When).Select(c => c.Subject))}")
+            : commits.OrderBy(c => c.When).Select(c => $"- [{c.RepoName}] {c.Subject}");
+        var lines = commitLines
             .Concat(notes.OrderBy(n => n.CreatedAt).Select(n => $"- {Indent(n.Text)}"))
             .ToList();
         if (lines.Count == 0) lines.Add("- ");

@@ -120,7 +120,7 @@ public class MainWindowViewModelTests
 
         vm.OpenSettingsCommand.Execute(null);
         Assert.Same(vm.Settings, vm.CurrentPage.Content);
-        Assert.Null(vm.SelectedLogPage); // ningún nodo del grafo queda marcado
+        Assert.Null(vm.SelectedLogPage); // ninguna página de la bitácora queda marcada
 
         vm.SelectedLogPage = vm.LogPages[3];
         Assert.Same(vm.Achievements, vm.CurrentPage.Content);
