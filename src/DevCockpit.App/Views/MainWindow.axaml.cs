@@ -15,7 +15,7 @@ public partial class MainWindow : Window
 
     protected override void OnClosing(WindowClosingEventArgs e)
     {
-        if (!AllowClose)
+        if (ClosePolicy.ShouldHideToTray(AllowClose, e.CloseReason))
         {
             e.Cancel = true;
             // Hide() dentro del propio cierre se ignora: se oculta apenas termina de procesarse.
