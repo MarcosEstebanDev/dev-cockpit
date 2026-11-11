@@ -5,7 +5,7 @@
 [Leer en español](README.es.md)
 
 ![.NET 10](https://img.shields.io/badge/.NET-10-512BD4) ![Avalonia](https://img.shields.io/badge/UI-Avalonia-8B44AC)
-![Tests](https://img.shields.io/badge/tests-162%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Tests](https://img.shields.io/badge/tests-166%20passing-2EA44F) ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 ![dev-cockpit: Daily view, commits grouped by repository](docs/screenshot.png)
 
@@ -51,7 +51,7 @@ Anthropic C# SDK · xUnit
 | `src/DevCockpit.Core` | Domain, ports and pure logic. No I/O. |
 | `src/DevCockpit.Infrastructure` | Adapters: git CLI, SQLite, JSON settings, Ollama / Claude / ChatGPT, Credential Manager. |
 | `src/DevCockpit.App` | Avalonia + MVVM: tray icon, windows, global hotkey. |
-| `tests/*` | 162 xUnit tests. Git tests create real temporary repositories. |
+| `tests/*` | 166 xUnit tests. Git tests create real temporary repositories. |
 
 ## Getting started
 
@@ -76,7 +76,7 @@ First run, in **Settings**: add the repositories to follow, check your git email
 ## Development
 
 ```powershell
-dotnet test                                   # 162 tests
+dotnet test                                   # 166 tests
 dotnet run --project src/DevCockpit.App       # debug run
 ```
 
